@@ -6,13 +6,13 @@ import random
 
 # Firebase configuration
 config = {
-    "apiKey": "AIzaSyAqy5Qbf7c6eOyB65AVYqbagVh7dbeWlNM",
-    "authDomain": "coding-nexus-a0713.firebaseapp.com",
-    "databaseURL": "https://coding-nexus-a0713-default-rtdb.asia-southeast1.firebasedatabase.app",
-    "projectId": "coding-nexus-a0713",
-    "storageBucket": "coding-nexus-a0713.appspot.com",
-    "messagingSenderId": "757069789705",
-    "appId": "1:757069789705:web:0e0182530be7d353e156d8",
+    "apiKey": os.getenv('FIREBASE_API_KEY'),
+    "authDomain": os.getenv('FIREBASE_AUTH_DOMAIN'),
+    "databaseURL": os.getenv('FIREBASE_DATABASE_URL'),
+    "projectId": os.getenv('FIREBASE_PROJECT_ID'),
+    "storageBucket": os.getenv('FIREBASE_STORAGE_BUCKET'),
+    "messagingSenderId": os.getenv('FIREBASE_MESSAGING_SENDER_ID'),
+    "appId": os.getenv('FIREBASE_APP_ID'),
 }
 
 firebase = pyrebase.initialize_app(config)
