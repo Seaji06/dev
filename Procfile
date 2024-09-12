@@ -1,1 +1,1 @@
-web: gunicorn CodingNexus.wsgi
+web: gunicorn CodingNexus.wsgi:application
