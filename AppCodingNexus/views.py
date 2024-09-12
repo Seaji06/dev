@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 import pyrebase, logging
 from django.contrib import messages
 from django.core.mail import send_mail
-import random
+import random, os
 
 # Firebase configuration
 config = {
