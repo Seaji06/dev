@@ -31,3 +31,4 @@ typing_extensions==4.12.2
 tzdata==2024.1
 urllib3==1.26.20
 waitress==3.0.0
+whitenoise==6.4.0
