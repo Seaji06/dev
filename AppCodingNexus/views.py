@@ -14,9 +14,42 @@ from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 import random
 
-@login_required(login_url='login')
+#@login_required(login_url='login')
 def home(request):
-    return render(request, 'index.html')
+    return render(request, 'home.html')
+
+def course(request):
+    return render(request, 'courses.html')
+
+def classroom(request):
+    return render(request, 'classroom.html')
+
+def about(request):
+    return render(request, 'about.html')
+
+def profile(request):
+    return render(request, 'profile.html')
+
+def view_profile(request):
+    return render(request, 'viewprofile.html')
+
+def edit_profile(request):
+    return render(request, 'editprofile.html')
+
+def change_password(request):
+    return render(request, 'change_password.html')
+
+def my_classes(request):
+    return render(request, 'my_class.html')
+
+def my_exercises(request):
+    return render(request, 'my_exercise.html')
+
+def my_quizzes(request):
+    return render(request, 'my_quizz.html')
+
+def delete_account(request):
+    return render(request, 'delete_account.html')
 
 def generate_otp():
     """Generate a 6-digit OTP."""
