@@ -15,13 +15,13 @@ from pathlib import Path
 import pyrebase
 
 config = {
-    "apiKey": os.getenv('FIREBASE_API_KEY'),
-    "authDomain": os.getenv('FIREBASE_AUTH_DOMAIN'),
-    "databaseURL": os.getenv('FIREBASE_DATABASE_URL'),
-    "projectId": os.getenv('FIREBASE_PROJECT_ID'),
-    "storageBucket": os.getenv('FIREBASE_STORAGE_BUCKET'),
-    "messagingSenderId": os.getenv('FIREBASE_MESSAGING_SENDER_ID'),
-    "appId": os.getenv('FIREBASE_APP_ID'),
+    "apiKey": "AIzaSyAqy5Qbf7c6eOyB65AVYqbagVh7dbeWlNM",
+    "authDomain": "coding-nexus-a0713.firebaseapp.com",
+    "databaseURL": "https://coding-nexus-a0713-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "projectId": "coding-nexus-a0713",
+    "storageBucket": "coding-nexus-a0713.appspot.com",
+    "messagingSenderId": "757069789705",
+    "appId": "1:757069789705:web:0e0182530be7d353e156d8",
 }
 
 firebase = pyrebase.initialize_app(config)
@@ -39,16 +39,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-a5!d20tms7d5zj9-acir$5wy+==qckay!kl#vg#qo$xolbn^*k'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['CodingNexus.onrender.com']
+ALLOWED_HOSTS = ['CodingNexus.onrender.com', '127.0.0.1', 'localhost']
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'yahoo69000@gmail.com'
-EMAIL_HOST_PASSWORD = 'lhpbnqpukfjpjwam'
+EMAIL_HOST_USER = 'codingnexus24@gmail.com'
+EMAIL_HOST_PASSWORD = 'zakbuvmwqpugsphp'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Application definition
