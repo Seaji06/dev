@@ -56,7 +56,7 @@
             <div class="form-container">
             <div class="welcome-text">Register</div><br>
 
-                <div class="role-selection">
+                <!--<div class="role-selection">
                     <div class="role-box" id="studentBox" onclick="selectRole('student')">
                         <input type="radio" id="role-student" name="role" value="student">
                         <label for="role-student">Student</label>
@@ -65,31 +65,16 @@
                         <input type="radio" id="role-instructor" name="role" value="instructor">
                         <label for="role-instructor">Instructor</label>
                     </div>
-                </div><br>
-                
+                </div><br>-->
+                <div class="input-wrapper studentID">
+                    <input type="number" placeholder="Student ID" name="studentID" class="input-background" required>
+                </div>
                 <div class="input-wrapper fullname">
                     <input type="text" placeholder="Firstname" name="firstname" class="input-background" required>
                     <input type="text" placeholder="Lastname" name="lastname" class="input-background" required>
                 </div>
-                Birthday
                 <div class="input-wrapper birthday">
-                    <select id="bmonth" name="bmonth" class="input-background" required>
-                        <option value="">Select Month</option>
-                        <option value="jan">Jan</option>
-                        <option value="feb">Feb</option>
-                        <option value="mar">Mar</option>
-                        <option value="apr">Apr</option>
-                        <option value="may">May</option>
-                        <option value="jun">Jun</option>
-                        <option value="jul">Jul</option>
-                        <option value="aug">Aug</option>
-                        <option value="sep">Sep</option>
-                        <option value="oct">Oct</option>
-                        <option value="nov">Nov</option>
-                        <option value="dec">Dec</option>
-                    </select>
-                    <input type="text" placeholder="Day" name="bday" class="input-background" required>
-                    <input type="text" placeholder="Year" name="byear" class="input-background" required>
+                    <input type="date" placeholder="Birthday" name="birthday" class="input-background" required>
                 </div>
                 <div class="input-wrapper gender">
                     <select id="gender" name="gender" class="input-background" required>
@@ -140,7 +125,7 @@
         
         document.getElementById(role + 'Box').classList.add('selected');
         
-        document.querySelector(`input[name="role"][value="${role}"]`).checked = true;
+        document.querySelector(`input[name="role"][value="Student"]`).checked = true;
     }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>

@@ -8,10 +8,11 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.contrib import messages
 from django.conf import settings
-from .models import UserProfile
+from .models import StudentList, UserProfile
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
+from datetime import datetime
 import random
 
 #@login_required(login_url='login')
@@ -82,25 +83,39 @@ def send_otp_email(user, otp):
 
 def user_register(request):
     if request.method == 'POST':
+        studentID = request.POST['studentID']
         firstname = request.POST['firstname']
         lastname = request.POST['lastname']
-        bmonth = request.POST['bmonth']
-        bday = request.POST['bday']
-        byear = request.POST['byear']
+        birthday = request.POST['birthday']  # This will be a string
         gender = request.POST['gender']
         email = request.POST['email']
         password = request.POST['password']
         cpassword = request.POST['cpassword']
-        
-        role = request.POST.get('role')
-        if not role:
-            messages.error(request, "Please select a role (Student or Instructor).")
+
+        # Convert birthday string to date
+        try:
+            birthday_date = datetime.strptime(birthday, "%Y-%m-%d").date()  # Assuming input format is 'YYYY-MM-DD'
+        except ValueError:
+            messages.error(request, "Invalid birthday format. Please use YYYY-MM-DD.")
             return redirect('register')
         
+        # Check if the student exists
+        student_list = StudentList.objects.filter(studentID=studentID, birthday=birthday_date).first()
+
+        if student_list:
+    # If both studentID and birthday match, proceed with registration
+            #messages.success(request, "Student exists, proceeding with registration.")
+            pass
+        else:
+            messages.error(request, "Student does not exist!")
+            return redirect('register')
+
+        # Check password match
         if password != cpassword:
             messages.error(request, "Passwords do not match.")
             return redirect('register')
 
+        # Create the user
         try:
             user = User.objects.create_user(
                 username=email, email=email, password=password, first_name=firstname, last_name=lastname
@@ -108,22 +123,22 @@ def user_register(request):
             user.is_active = False
             user.save()
 
-            otp = generate_otp()
-            email_sent = send_otp_email(user, otp)
+            otp = generate_otp()  # Ensure this function is defined in your code
+            email_sent = send_otp_email(user, otp)  # Ensure this function is defined
 
             if not email_sent:
                 messages.error(request, "Error sending OTP email. Please try again.")
                 return redirect('register')
 
+            # Store registration data in the session, convert birthday to string
             request.session['registration_data'] = {
                 'user_id': user.id,
+                'studentID': studentID,
                 'firstname': firstname,
                 'lastname': lastname,
-                'bmonth': bmonth,
-                'bday': bday,
-                'byear': byear,
+                'birthday': birthday_date.isoformat(),  # Convert date to string
                 'gender': gender,
-                'role': role,
+                'role': 'Student',
                 'otp': otp,
             }
 
@@ -145,11 +160,10 @@ def verify_otp(request):
             user = User.objects.get(id=session_data['user_id'])
             user_profile = UserProfile.objects.create(
                 user=user,
+                studentID=session_data['studentID'],
                 firstname=session_data['firstname'],
                 lastname=session_data['lastname'],
-                birthmonth=session_data['bmonth'],
-                birthday=session_data['bday'],
-                birthyear=session_data['byear'],
+                birthday=session_data['birthday'],
                 gender=session_data['gender'],
                 role=session_data['role']
             )

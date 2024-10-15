@@ -8,6 +8,7 @@
     <title>{% block title %}Coding Nexus{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/globals.css' %}" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <link rel="icon" href="{% static 'images/logo.ico' %}" type="image/x-icon" />
     <style>
         /* Ensure the html and body take full height */
@@ -87,4 +88,36 @@
     </script>
 
 </body>
+<script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
+<script>
+    // Initialize Notyf
+    var notyf = new Notyf({
+        position: {
+          x: 'center', 
+          y: 'top',     
+        }
+      });
+  
+    // Function to display notifications
+    function showSuccessMessage(message) {
+      notyf.success(message);
+    }
+  
+    function showErrorMessage(message) {
+      notyf.error(message);
+    }
+  </script>
+  
+  <!-- In this case, using Django's messages framework -->
+  {% if messages %}
+    <script>
+      {% for message in messages %}
+        {% if message.tags == 'success' %}
+          showSuccessMessage("{{ message }}");
+        {% elif message.tags == 'error' %}
+          showErrorMessage("{{ message }}");
+        {% endif %}
+      {% endfor %}
+    </script>
+  {% endif %}
 </html>
