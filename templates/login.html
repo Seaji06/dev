@@ -1,75 +1,105 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
-    <link rel="stylesheet" href="{% static 'css/LRStyle.css' %}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <link rel="icon" href="{% static 'images/logo.ico' %}" type="image/x-icon" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom Colors */
+        .bg-custom-pink {
+            background-color: #CB9393;
+        }
+        .bg-custom-dark-red {
+            background-color: #972726;
+        }
+        .hover-bg-custom-dark-red:hover {
+            background-color: #972726;
+        }
+        .bg-custom-gray {
+            background-color: #d0d0d0;
+        }
+        .text-custom-dark-red {
+            color: #972726;
+        }
+    </style>
 </head>
-<body>
-    <div class="container">
-        <div class="box-container">
-            <form class="form_main" action="{% url 'login' %}" method="POST">
+
+<body class="min-h-screen flex flex-col justify-between">
+    <div class="flex flex-col justify-center items-center flex-1 px-6">
+        <div class="w-full max-w-lg bg-white p-10 rounded-lg shadow-lg border border-gray-300">
+            <form class="space-y-6" action="{% url 'login' %}" method="POST">
                 {% csrf_token %}
-            <div class="form-container">
-            <div class="welcome-text">Login</div><br>
+                <div class="text-center text-4xl font-extrabold mb-6">Login</div>
                 
-                <div class="input-wrapper username">
-                    <input type="email" placeholder="Email or Username" name="email" class="input-background" required>
+                <!-- Email Input -->
+                <div class="flex flex-col gap-4">
+                    <input type="email" name="email" placeholder="Email or Username"
+                        class="w-full p-3 bg-custom-gray rounded-lg text-lg focus:ring-2 focus:ring-custom-dark-red focus:outline-none"
+                        required>
+                    
+                    <!-- Password Input -->
+                    <input type="password" name="password" placeholder="Password"
+                        class="w-full p-3 bg-custom-gray rounded-lg text-lg focus:ring-2 focus:ring-custom-dark-red focus:outline-none"
+                        required>
                 </div>
-                <div class="input-wrapper password">
-                    <input type="password" placeholder="Password" name="password" class="input-background" required>
-                </div>
-                <div class="member-container">
-                    <a href="{% url 'forgot-password'%}" class="forgot">forgot your password?</a>
-                    <div class="not-member">Not yet a member?
-                        <a href="{% url 'register' %}" class="click-here">Click Here</a>
+
+                <!-- Forgot Password & Register Links -->
+                <div class="text-center text-sm text-gray-600 mt-4">
+                    <a href="{% url 'forgot-password' %}" class="text-custom-dark-red hover:underline">Forgot your password?</a>
+                    <div class="mt-2 text-black ">Not yet a member?
+                        <a href="{% url 'register' %}" class="text-custom-dark-red hover:underline">Click Here</a>
                     </div>
                 </div>
                 
-                <button class="continue-button">Login</button>
-                
-            </div>
-        </form>
+                <!-- Login Button -->
+                <button
+                    class="w-full bg-custom-pink hover-bg-custom-dark-red text-black font-bold py-3 rounded-full transition duration-300">
+                    Login
+                </button>
+            </form>
         </div>
     </div>
-</body>
-<footer class="footer">
-    <p class="footer-text">© 2024 Coding Nexus. All Rights Reserved.</p>
-</footer>
-<script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
-<script>
-    // Initialize Notyf
-    var notyf = new Notyf({
-        position: {
-          x: 'center', 
-          y: 'top',     
-        }
-      });
-  
-    // Function to display notifications
-    function showSuccessMessage(message) {
-      notyf.success(message);
-    }
-  
-    function showErrorMessage(message) {
-      notyf.error(message);
-    }
-  </script>
-  
-  <!-- In this case, using Django's messages framework -->
-  {% if messages %}
+
+    <!-- Footer -->
+    <footer class="bg-custom-dark-red text-white text-center p-4">
+        <p class="text-sm">© 2024 Coding Nexus. All Rights Reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
-      {% for message in messages %}
-        {% if message.tags == 'success' %}
-          showSuccessMessage("{{ message }}");
-        {% elif message.tags == 'error' %}
-          showErrorMessage("{{ message }}");
-        {% endif %}
-      {% endfor %}
+        var notyf = new Notyf({
+            position: {
+                x: 'center',
+                y: 'top',
+            }
+        });
+
+        function showSuccessMessage(message) {
+            notyf.success(message);
+        }
+
+        function showErrorMessage(message) {
+            notyf.error(message);
+        }
     </script>
-  {% endif %}
+
+    {% if messages %}
+    <script>
+        {% for message in messages %}
+        {% if message.tags == 'success' %}
+        showSuccessMessage("{{ message }}");
+        {% elif message.tags == 'error' %}
+        showErrorMessage("{{ message }}");
+        {% endif %}
+        {% endfor %}
+    </script>
+    {% endif %}
+</body>
+
 </html>
