@@ -22,6 +22,9 @@ urlpatterns = [
     path('logout/', views.user_logout, name='logout'),
     path('verify_otp/', views.verify_otp, name='verify_otp'),
     path('reset-password/', views.reset_password, name='reset-password'),
+    path('admin/', views.admin_page, name='admin-page'),
+    path('admin/instructor-list/', views.instructor_list, name='instructor-list'),
+    path('admin/student-list/', views.student_list, name='student-list')
 ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:

@@ -8,11 +8,13 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.contrib import messages
 from django.conf import settings
-from .models import StudentList, UserProfile
+from .models import StudentList, UserActivity, UserProfile
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
+from django.db.models import Q, Count
+from django.utils import timezone
 import random
 
 #@login_required(login_url='login')
@@ -182,17 +184,33 @@ def verify_otp(request):
 
 def user_login(request):
     if request.method == 'POST':
-        email = request.POST['email']
+        login_input = request.POST['email']  # Can be email or username
         password = request.POST['password']
-        user = authenticate(request, username=email, password=password)
 
-        if user is not None:
-            login(request, user)
-            messages.success(request, "Login successful.")
-            return redirect('home')
+        try:
+            # Check if the input is an email
+            user = User.objects.get(Q(email=login_input) | Q(username=login_input))
+            username = user.username  # Retrieve the username to authenticate
+        except User.DoesNotExist:
+            username = None
+
+        if username is not None:
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                UserActivity.objects.create(user=user, activity_type="login", description="User logged in")
+                if user.is_staff == True:
+                    messages.success(request, "Login successful.")
+                    return redirect('admin-page')
+                else:
+                    
+                    messages.success(request, "Login successful.")
+                    return redirect('home')
+            else:
+                messages.error(request, "Invalid credentials.")
         else:
-            messages.error(request, "Invalid credentials.")
-            return redirect('login')
+            messages.error(request, "No account found with the provided credentials.")
+        return redirect('login')
 
     return render(request, 'login.html')
 
@@ -285,3 +303,34 @@ def reset_password(request):
 
     # If neither GET nor POST, render the reset password page
     return render(request, 'reset-password.html') 
+
+@login_required(login_url='login')
+def admin_page(request):
+    # Count instructors and students
+    counts = UserProfile.objects.values('role').annotate(count=Count('role')).order_by('role')
+    instructor_count = next((item['count'] for item in counts if item['role'] == 'Instructor'), 0)
+    student_count = next((item['count'] for item in counts if item['role'] == 'Student'), 0)
+
+    # Calculate total users
+    total_users = instructor_count + student_count
+
+    # Fetch recent students (adjust limit as needed, e.g., last 5 students)
+    new_students = UserProfile.objects.filter(role='Student').order_by('-user__date_joined')[:5]
+
+    # Prepare context for the template
+    context = {
+        'instructor_count': instructor_count,
+        'student_count': student_count,
+        'total_users': total_users,
+        'new_students': new_students,
+    }
+
+    return render(request, 'admin_page/index.html', context)
+
+def instructor_list(request):
+    instructors = UserProfile.objects.filter(role='Instructor')
+    return render(request, 'admin_page/tables/instructor_table.html', {'instructors': instructors})
+
+def student_list(request):
+    students = UserProfile.objects.filter(role='Student')
+    return render(request, 'admin_page/tables/student_table.html', {'students': students})
