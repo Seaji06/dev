@@ -7,10 +7,10 @@
 <div class="container">
   <div class="page-inner">
     <div class="page-header">
-      <h3 class="fw-bold mb-3">Instructor List</h3>
+      <h3 class="fw-bold mb-3">Student List</h3>
       <ul class="breadcrumbs mb-3">
         <li class="nav-home">
-          <a href="#">
+          <a href="{% url 'admin-page' %}">
             <i class="icon-home"></i>
           </a>
         </li>
@@ -18,21 +18,29 @@
           <i class="icon-arrow-right"></i>
         </li>
         <li class="nav-item">
-          <a href="#">Tables</a>
-        </li>
-        <li class="separator">
-          <i class="icon-arrow-right"></i>
-        </li>
-        <li class="nav-item">
-          <a href="#">Student List</a>
+          <a href="#">Students</a>
         </li>
       </ul>
     </div>
+    
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
     <div class="row">
       <div class="col-md-12">
         <div class="card">
           <div class="card-header">
-            <h4 class="card-title">Students</h4>
+            <div class="d-flex justify-content-between align-items-center">
+              <h4 class="card-title">Students</h4>
+            </div>
           </div>
           <div class="card-body">
             <div class="table-responsive">
@@ -44,25 +52,85 @@
                     <th>Student ID</th>
                     <th>Birthday</th>
                     <th>Gender</th>
+                    <th style="width: 150px;">Actions</th>
                   </tr>
                 </thead>
-                <tfoot>
-                  <tr>
-                    <th>Photo</th>
-                    <th>Name</th>
-                    <th>Student ID</th>
-                    <th>Birthday</th>
-                    <th>Gender</th>
-                  </tr>
-                </tfoot>
                 <tbody>
                   {% for student in students %}
                   <tr>
-                    <td><img src="{{ student.display_photo.url }}" alt="Profile Photo" width="50" height="50"></td>
+                    <td>
+                      <img src="{{ student.display_photo.url }}" alt="Profile Photo" 
+                           width="50" height="50" class="rounded-circle">
+                    </td>
                     <td>{{ student.firstname }} {{ student.lastname }}</td>
                     <td>{{ student.studentID }}</td>
                     <td>{{ student.birthday }}</td>
                     <td>{{ student.gender }}</td>
+                    <td>
+                      <div class="btn-group" role="group">
+                        <!-- View Button -->
+                        <a href="{% url 'student-view' student.id %}" 
+                           class="btn btn-info btn-sm" 
+                           data-toggle="tooltip" 
+                           title="View Details">
+                          <i class="fas fa-eye"></i>
+                        </a>
+                        
+                        <!-- Edit Button -->
+                        <a href="{% url 'student-edit' student.id %}" 
+                           class="btn btn-warning btn-sm" 
+                           data-toggle="tooltip" 
+                           title="Edit">
+                          <i class="fas fa-edit"></i>
+                        </a>
+                        
+                        <!-- Delete Button -->
+                        <button type="button" 
+                                class="btn btn-danger btn-sm" 
+                                data-toggle="modal" 
+                                data-target="#deleteModal{{ student.id }}" 
+                                data-toggle="tooltip" 
+                                title="Delete">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+
+                      <!-- Delete Modal -->
+                      <div class="modal fade" id="deleteModal{{ student.id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title">Delete Student Account</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                              <p>Are you sure you want to delete this student account?</p>
+                              <div class="alert alert-warning">
+                                <strong>Student Details:</strong><br>
+                                Name: {{ student.firstname }} {{ student.lastname }}<br>
+                                Student ID: {{ student.studentID }}<br>
+                                Email: {{ student.user.email }}
+                              </div>
+                              <p class="text-danger">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <strong>Warning:</strong> This action cannot be undone. All associated data will be permanently deleted.
+                              </p>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                              <form action="{% url 'student-delete' student.id %}" method="POST" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">
+                                  <i class="fas fa-trash"></i> Delete Student
+                                </button>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
                   </tr>
                   {% endfor %}
                 </tbody>
@@ -75,25 +143,22 @@
   </div>
 </div>
 
-<!-- DataTables JS and CSS -->
+<!-- DataTables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 
 <script>
   $(document).ready(function() {
     $('#basic-datatables').DataTable({
-      "paging": true,
-      "lengthChange": true,
-      "pageLength": 5,
-      "searching": true,
+      "pageLength": 10,
       "ordering": true,
-      "info": true
+      "info": true,
+      "lengthChange": true,
+      "searching": true
     });
 
-    $('.btn-toggle').on('click', function() {
-      $('.sidebar').toggleClass('toggled');
-    });
+    // Initialize tooltips
+    $('[data-toggle="tooltip"]').tooltip();
   });
 </script>
 {% endblock %}

@@ -1,0 +1,200 @@
+{% extends "admin_page/base.html" %}
+{% load static %}
+
+{% block title %}Instructor List{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-inner">
+    <div class="page-header">
+      <h3 class="fw-bold mb-3">Forms</h3>
+      <ul class="breadcrumbs mb-3">
+        <li class="nav-home">
+          <a href="#">
+            <i class="icon-home"></i>
+          </a>
+        </li>
+        <li class="separator">
+          <i class="icon-arrow-right"></i>
+        </li>
+        <li class="nav-item">
+          <a href="#">Forms</a>
+        </li>
+        <li class="separator">
+          <i class="icon-arrow-right"></i>
+        </li>
+        <li class="nav-item">
+          <a href="#">Instructors Form</a>
+        </li>
+      </ul>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Add Instructor</div>
+          </div>
+          <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="row">
+                <!-- Left Column -->
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-header">
+                      <h4 class="card-title">Account Information</h4>
+                    </div>
+                    <div class="card-body">
+                      <!-- User model fields -->
+                      <div class="form-group">
+                        <label for="username">Username</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="username"
+                          name="username"
+                          required
+                          placeholder="Enter Username"
+                        />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input
+                          type="email"
+                          class="form-control"
+                          id="email"
+                          name="email"
+                          required
+                          placeholder="Enter Email"
+                        />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="password">Password</label>
+                        <input
+                          type="password"
+                          class="form-control"
+                          id="password"
+                          name="password"
+                          required
+                          placeholder="Password"
+                        />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="display_photo">Profile Picture</label>
+                        <input
+                          type="file"
+                          class="form-control-file"
+                          id="display_photo"
+                          name="display_photo"
+                          accept="image/*"
+                        />
+                        <small class="form-text text-muted">Default image will be used if none is provided</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Column -->
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-header">
+                      <h4 class="card-title">Personal Information</h4>
+                    </div>
+                    <div class="card-body">
+                      <!-- UserProfile model fields -->
+                      <div class="form-group">
+                        <label for="studentID">ID Number</label>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="studentID"
+                          name="studentID"
+                          placeholder="Enter ID Number"
+                        />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="firstname">First Name</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="firstname"
+                          name="firstname"
+                          required
+                          maxlength="50"
+                          placeholder="Enter First Name"
+                        />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="lastname">Last Name</label>
+                        <input
+                          type="text"
+                          class="form-control"
+                          id="lastname"
+                          name="lastname"
+                          required
+                          maxlength="50"
+                          placeholder="Enter Last Name"
+                        />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="birthday">Birthday</label>
+                        <input
+                          type="date"
+                          class="form-control"
+                          id="birthday"
+                          name="birthday"
+                          required
+                        />
+                      </div>
+
+                      <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select class="form-control" id="gender" name="gender">
+                          <option value="">Gender</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Lesbian">Lesbian</option>
+                          <option value="Gay">Gay</option>
+                          <option value="Bisexual">Bisexual</option>
+                          <option value="Transgender Male">Transgender Male</option>
+                          <option value="Transgender Female">Transgender Female</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+
+                      <div class="form-group">
+                        <label for="bio">Bio</label>
+                        <textarea 
+                          class="form-control" 
+                          id="bio" 
+                          name="bio" 
+                          rows="3"
+                          placeholder="Enter brief description"
+                        ></textarea>
+                      </div>
+
+                      <!-- Hidden role field -->
+                      <input type="hidden" name="role" value="Instructor">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card-action mt-3">
+                <button type="submit" class="btn btn-success">Submit</button>
+                <button type="button" class="btn btn-danger">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

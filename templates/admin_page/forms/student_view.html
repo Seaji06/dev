@@ -1,0 +1,168 @@
+{% extends "admin_page/base.html" %}
+{% load static %}
+{% load tz %}
+
+{% block title %}Student Details{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-inner">
+    <div class="page-header">
+      <h3 class="fw-bold mb-3">Student Details</h3>
+      <ul class="breadcrumbs mb-3">
+        <li class="nav-home">
+          <a href="{% url 'admin-page' %}">
+            <i class="icon-home"></i>
+          </a>
+        </li>
+        <li class="separator">
+          <i class="icon-arrow-right"></i>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'student-list' %}">Students</a>
+        </li>
+        <li class="separator">
+          <i class="icon-arrow-right"></i>
+        </li>
+        <li class="nav-item">
+          <a href="#">Student Details</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+              <h4 class="card-title">Student Information</h4>
+              <div>
+                <a href="{% url 'student-edit' student.id %}" class="btn btn-warning btn-sm">
+                  <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'student-list' %}" class="btn btn-primary btn-sm">
+                  <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <!-- Profile Photo Column -->
+              <div class="col-md-4 text-center mb-4">
+                <img src="{{ student.display_photo.url }}" 
+                     alt="Profile Photo" 
+                     class="rounded-circle img-fluid" 
+                     style="width: 200px; height: 200px; object-fit: cover;">
+              </div>
+              
+              <!-- Information Column -->
+              <div class="col-md-8">
+                <div class="table-responsive">
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <th style="width: 150px;">Student ID</th>
+                        <td>{{ student.studentID }}</td>
+                      </tr>
+                      <tr>
+                        <th>First Name</th>
+                        <td>{{ student.firstname }}</td>
+                      </tr>
+                      <tr>
+                        <th>Last Name</th>
+                        <td>{{ student.lastname }}</td>
+                      </tr>
+                      <tr>
+                        <th>Email</th>
+                        <td>{{ student.user.email }}</td>
+                      </tr>
+                      <tr>
+                        <th>Birthday</th>
+                        <td>{{ student.birthday }}</td>
+                      </tr>
+                      <tr>
+                        <th>Gender</th>
+                        <td>{{ student.gender }}</td>
+                      </tr>
+                      <tr>
+                        <th>Role</th>
+                        <td>{{ student.role }}</td>
+                      </tr>
+                      <tr>
+                        <th>Bio</th>
+                        <td>{{ student.bio|default:"No bio provided"|linebreaks }}</td>
+                      </tr>
+                      <tr>
+                        <th>Join Date</th>
+                        <td>{{ student.user.date_joined|date:"F d, Y" }}</td>
+                      </tr>
+                      <tr>
+                        <th>Last Login</th>
+                        <td>{{ student.user.last_login|date:"F d, Y H:i"|default:"Never logged in" }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Log Card -->
+        <div class="card mt-4">
+          <div class="card-header">
+            <h4 class="card-title">Recent Activity</h4>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Activity</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% timezone "Asia/Manila" %}
+                  {% for activity in student.user.useractivity_set.all|slice:":10" %}
+                  <tr>
+                    <td>
+                      {{ activity.date|date:"F d, Y h:i A" }} (Manila Time)
+                    </td>
+                    <td>{{ activity.activity_type }}</td>
+                    <td>{{ activity.description }}</td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="3" class="text-center">No activity recorded</td>
+                  </tr>
+                  {% endfor %}
+                  {% endtimezone %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+  }
+  .card-title {
+    margin-bottom: 0;
+  }
+  .breadcrumbs {
+    margin-bottom: 1.5rem;
+  }
+  .btn-sm {
+    margin-left: 0.5rem;
+  }
+</style>
+{% endblock %} 

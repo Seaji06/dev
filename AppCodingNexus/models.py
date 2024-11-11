@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+import pytz
+from datetime import timedelta
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -26,10 +29,30 @@ class StudentList(models.Model):
         return self.firstname + " " + self.lastname
 
 class UserActivity(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Link to the User model
-    activity_type = models.CharField(max_length=100)  # Type of activity (e.g., "login", "registration")
-    date = models.DateTimeField(auto_now_add=True)  # Timestamp of when the activity occurred
-    description = models.TextField(blank=True, null=True)  # Optional description of the activity
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    activity_type = models.CharField(max_length=100)
+    date = models.DateTimeField()
+    description = models.TextField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        # Set the current time in Manila timezone if no date is provided
+        if not self.date:
+            manila_tz = pytz.timezone('Asia/Manila')
+            self.date = timezone.now().astimezone(manila_tz)
+        
+        # This line automatically deletes logs older than 7 days
+        seven_days_ago = timezone.now() - timedelta(days=7)
+        UserActivity.objects.filter(date__lt=seven_days_ago).delete()
+        
+        # Save the current log
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.user.username} - {self.activity_type} on {self.date.strftime('%Y-%m-%d %H:%M:%S')}"
+        manila_tz = pytz.timezone('Asia/Manila')
+        manila_time = self.date.astimezone(manila_tz)
+        return f"{self.user.username}- {self.activity_type} on {manila_time.strftime('%Y-%m-%d %H:%M:%S')}"
+
+    @classmethod
+    def cleanup_old_logs(cls):
+        seven_days_ago = timezone.now() - timedelta(days=7)
+        cls.objects.filter(date__lt=seven_days_ago).delete()

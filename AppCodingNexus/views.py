@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.http import BadHeaderError
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.core.mail import EmailMessage, EmailMultiAlternatives
@@ -16,6 +16,8 @@ from datetime import datetime, timedelta, timezone
 from django.db.models import Q, Count
 from django.utils import timezone
 import random
+import pytz
+from django.utils.timezone import activate
 
 #@login_required(login_url='login')
 def home(request):
@@ -198,12 +200,22 @@ def user_login(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                UserActivity.objects.create(user=user, activity_type="login", description="User logged in")
-                if user.is_staff == True:
-                    messages.success(request, "Login successful.")
+                
+                # Create different log messages for admin and regular users
+                if user.is_staff:
+                    UserActivity.objects.create(
+                        user=user,
+                        activity_type="admin_login",
+                        description=f"Admin {user.username} logged in"
+                    )
+                    messages.success(request, "Admin login successful.")
                     return redirect('admin-page')
                 else:
-                    
+                    UserActivity.objects.create(
+                        user=user,
+                        activity_type="user_login",
+                        description=f"User {user.username} logged in"
+                    )
                     messages.success(request, "Login successful.")
                     return redirect('home')
             else:
@@ -306,6 +318,11 @@ def reset_password(request):
 
 @login_required(login_url='login')
 def admin_page(request):
+    # Check if user is admin/staff
+    if not request.user.is_staff:
+        messages.error(request, "You don't have permission to access this page.")
+        return redirect('home')
+
     # Count instructors and students
     counts = UserProfile.objects.values('role').annotate(count=Count('role')).order_by('role')
     instructor_count = next((item['count'] for item in counts if item['role'] == 'Instructor'), 0)
@@ -317,12 +334,26 @@ def admin_page(request):
     # Fetch recent students (adjust limit as needed, e.g., last 5 students)
     new_students = UserProfile.objects.filter(role='Student').order_by('-user__date_joined')[:5]
 
+    # Fetch recent activity logs (last 10 entries) - only for admin users
+    recent_logs = UserActivity.objects.filter(
+        user__is_staff=True,  # Only get logs created by admin users
+        activity_type__in=[
+            'admin_login',  # Added admin_login to the list
+            'instructor_creation',
+            'instructor_edit',
+            'instructor_deletion',
+            'student_account_edit',
+            'student_deletion'
+        ]
+    ).select_related('user').order_by('-date')[:10]
+
     # Prepare context for the template
     context = {
         'instructor_count': instructor_count,
         'student_count': student_count,
         'total_users': total_users,
         'new_students': new_students,
+        'recent_logs': recent_logs,
     }
 
     return render(request, 'admin_page/index.html', context)
@@ -334,3 +365,325 @@ def instructor_list(request):
 def student_list(request):
     students = UserProfile.objects.filter(role='Student')
     return render(request, 'admin_page/tables/student_table.html', {'students': students})
+
+@login_required(login_url='login')
+def student_view(request, pk):
+    # Activate Manila timezone
+    activate(pytz.timezone('Asia/Manila'))
+    
+    student = get_object_or_404(UserProfile, pk=pk, role='Student')
+    activities = student.user.useractivity_set.all()[:10]
+    
+    context = {
+        'student': student,
+        'activities': activities,
+        'timezone': timezone.get_current_timezone_name()
+    }
+    return render(request, 'admin_page/forms/student_view.html', context)
+
+@login_required(login_url='login')
+def student_edit(request, pk):
+    student = get_object_or_404(UserProfile, pk=pk, role='Student')
+    
+    if request.method == 'POST':
+        try:
+            # Get form data
+            username = request.POST['username']
+            email = request.POST['email']
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+
+            # Check if username is already taken by another user
+            if User.objects.exclude(pk=student.user.pk).filter(username=username).exists():
+                messages.error(request, 'Username is already taken.')
+                return redirect('student-edit', pk=pk)
+
+            # Check if email is already taken by another user
+            if User.objects.exclude(pk=student.user.pk).filter(email=email).exists():
+                messages.error(request, 'Email is already taken.')
+                return redirect('student-edit', pk=pk)
+
+            # Update user information
+            student.user.username = username
+            student.user.email = email
+
+            # Update password if provided
+            if new_password:
+                if new_password != confirm_password:
+                    messages.error(request, 'Passwords do not match.')
+                    return redirect('student-edit', pk=pk)
+                student.user.set_password(new_password)
+
+            student.user.save()
+
+            # Log the activity
+            UserActivity.objects.create(
+                user=request.user,
+                activity_type='student_account_edit',
+                description=f'Updated account information for student {student.firstname} {student.lastname}'
+            )
+
+            messages.success(request, 'Student account information updated successfully!')
+            return redirect('student-list')
+
+        except Exception as e:
+            messages.error(request, f'Error updating student account: {str(e)}')
+            return redirect('student-edit', pk=pk)
+
+    return render(request, 'admin_page/forms/student_edit.html', {'student': student})
+
+def student_delete(request, pk):
+    if request.method == 'POST':
+        student = get_object_or_404(UserProfile, pk=pk, role='Student')
+        try:
+            student_name = f"{student.firstname} {student.lastname}"
+            
+            # Create activity log before deleting
+            create_activity(
+                user=request.user,
+                activity_type='student_deletion',
+                description=f'Deleted student account for {student_name}'
+            )
+            
+            # Delete the user (this will cascade delete the UserProfile)
+            student.user.delete()
+            
+            messages.success(request, 'Student deleted successfully!')
+        except Exception as e:
+            messages.error(request, f'Error deleting student: {str(e)}')
+    
+    return redirect('student-list')
+
+def send_instructor_credentials(user, password):
+    """Send email with login credentials to new instructor."""
+    email_subject = "Your Instructor Account Credentials"
+    
+    html_message = render_to_string('admin_page/emails/instructor_credentials.html', {
+        'firstname': user.first_name,
+        'lastname': user.last_name,
+        'username': user.username,
+        'email': user.email,
+        'password': password,
+    })
+    
+    text_message = strip_tags(html_message)
+
+    email = EmailMultiAlternatives(
+        email_subject,
+        text_message,
+        settings.EMAIL_HOST_USER,
+        [user.email],
+    )
+    
+    email.attach_alternative(html_message, "text/html")
+    
+    try:
+        email.send(fail_silently=False)
+        return True
+    except BadHeaderError:
+        return False
+
+@login_required(login_url='login')
+def instructor_form(request):
+    if request.method == 'POST':
+        try:
+            # Get form data for User model
+            username = request.POST['username']
+            email = request.POST['email']
+            password = request.POST['password']
+            
+            # Get form data for UserProfile model
+            firstname = request.POST['firstname']
+            lastname = request.POST['lastname']
+            studentID = request.POST.get('studentID')
+            birthday = request.POST['birthday']
+            gender = request.POST['gender']
+            bio = request.POST.get('bio', '')
+            display_photo = request.FILES.get('display_photo')
+
+            # Validate that username/email doesn't already exist
+            if User.objects.filter(Q(username=username) | Q(email=email)).exists():
+                messages.error(request, 'Username or email already exists.')
+                return redirect('instructor_form')
+
+            # Create User account
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=firstname,
+                last_name=lastname
+            )
+
+            # Create UserProfile for instructor
+            profile = UserProfile.objects.create(
+                user=user,
+                studentID=studentID,
+                firstname=firstname,
+                lastname=lastname,
+                birthday=birthday,
+                gender=gender,
+                role='Instructor',
+                bio=bio
+            )
+
+            # Handle profile picture if uploaded
+            if display_photo:
+                profile.display_photo = display_photo
+                profile.save()
+
+            # Send credentials email
+            email_sent = send_instructor_credentials(user, password)
+            if not email_sent:
+                messages.warning(request, 'Instructor account created but failed to send email notification.')
+
+            # Log the activity
+            UserActivity.objects.create(
+                user=request.user,
+                activity_type='instructor_creation',
+                description=f'Created new instructor account for {username}'
+            )
+
+            messages.success(request, 'Instructor added successfully!')
+            return redirect('instructor-list')
+
+        except Exception as e:
+            messages.error(request, f'Error adding instructor: {str(e)}')
+            return redirect('instructor-form')
+
+    return render(request, 'admin_page/forms/instructor_form.html')
+
+@login_required(login_url='login')
+def ctu_student_list(request):
+    # Get all students from StudentList model, ordered by studentID
+    students = StudentList.objects.all().order_by('studentID')
+    
+    # Pass the students to the template
+    context = {
+        'students': students
+    }
+    return render(request, 'admin_page/tables/ctu_student_table.html', context)
+
+"""@login_required(login_url='login')
+def student_form(request):
+    if request.method == 'POST':    
+        try:
+            # Get form data
+            studentID = request.POST['studentID']
+            firstname = request.POST['firstname']
+            lastname = request.POST['lastname']
+            birthday = request.POST['birthday']
+
+            # Create new student in StudentList
+            student = StudentList.objects.create(
+                studentID=studentID,
+                firstname=firstname,
+                lastname=lastname,
+                birthday=birthday
+            )
+
+            # Log the activity
+            UserActivity.objects.create(
+                user=request.user,
+                activity_type='student_creation',
+                description=f'Added new student {firstname} {lastname} to CTU Student List'
+            )
+
+            messages.success(request, 'Student added successfully!')
+            return redirect('ctu-student-list')
+
+        except Exception as e:
+            messages.error(request, f'Error adding student: {str(e)}')
+            return redirect('student-form')
+
+    return render(request, 'admin_page/forms/student_form.html')"""
+
+def create_activity(user, activity_type, description):
+    manila_tz = pytz.timezone('Asia/Manila')
+    current_time = timezone.now().astimezone(manila_tz)
+    
+    UserActivity.objects.create(
+        user=user,
+        activity_type=activity_type,
+        date=current_time,
+        description=description
+    )
+
+@login_required(login_url='login')
+def instructor_view(request, pk):
+    instructor = get_object_or_404(UserProfile, pk=pk, role='Instructor')
+    return render(request, 'admin_page/forms/instructor_view.html', {'instructor': instructor})
+
+@login_required(login_url='login')
+def instructor_edit(request, pk):
+    instructor = get_object_or_404(UserProfile, pk=pk, role='Instructor')
+    
+    if request.method == 'POST':
+        try:
+            # Get form data
+            username = request.POST['username']
+            email = request.POST['email']
+            new_password = request.POST.get('new_password')
+            confirm_password = request.POST.get('confirm_password')
+
+            # Check if username is already taken by another user
+            if User.objects.exclude(pk=instructor.user.pk).filter(username=username).exists():
+                messages.error(request, 'Username is already taken.')
+                return redirect('instructor-edit', pk=pk)
+
+            # Check if email is already taken by another user
+            if User.objects.exclude(pk=instructor.user.pk).filter(email=email).exists():
+                messages.error(request, 'Email is already taken.')
+                return redirect('instructor-edit', pk=pk)
+
+            # Update user information
+            instructor.user.username = username
+            instructor.user.email = email
+
+            # Update password if provided
+            if new_password:
+                if new_password != confirm_password:
+                    messages.error(request, 'Passwords do not match.')
+                    return redirect('instructor-edit', pk=pk)
+                instructor.user.set_password(new_password)
+
+            instructor.user.save()
+
+            # Log the activity
+            create_activity(
+                user=request.user,
+                activity_type='instructor_edit',
+                description=f'Updated instructor account for {instructor.firstname} {instructor.lastname}'
+            )
+
+            messages.success(request, 'Instructor account updated successfully!')
+            return redirect('instructor-list')
+
+        except Exception as e:
+            messages.error(request, f'Error updating instructor account: {str(e)}')
+            return redirect('instructor-edit', pk=pk)
+
+    return render(request, 'admin_page/forms/instructor_edit.html', {'instructor': instructor})
+
+@login_required(login_url='login')
+def instructor_delete(request, pk):
+    if request.method == 'POST':
+        instructor = get_object_or_404(UserProfile, pk=pk, role='Instructor')
+        try:
+            instructor_name = f"{instructor.firstname} {instructor.lastname}"
+            
+            # Create activity log before deleting
+            create_activity(
+                user=request.user,
+                activity_type='instructor_deletion',
+                description=f'Deleted instructor account for {instructor_name}'
+            )
+            
+            # Delete the user (this will cascade delete the UserProfile)
+            instructor.user.delete()
+            
+            messages.success(request, 'Instructor deleted successfully!')
+        except Exception as e:
+            messages.error(request, f'Error deleting instructor: {str(e)}')
+    
+    return redirect('instructor-list')

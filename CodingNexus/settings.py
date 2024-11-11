@@ -9,6 +9,8 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+TIME_ZONE = 'Asia/Manila'  # Set to GMT+8
+USE_TZ = True 
 
 import os
 from pathlib import Path

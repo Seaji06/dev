@@ -3,18 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Verification</title>
+    <title>Email Verification - Coding Nexus</title>
 </head>
 <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; color: #333;">
     <div style="max-width: 600px; margin: auto; background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
         <div style="text-align: center;">
             <img src="https://drive.google.com/uc?export=view&id=1ms-EtCfigOHg-5_IOTht31xBnZyq4zAy" alt="Coding Nexus Logo" style="max-width: 150px; margin-bottom: 20px;">
         </div>
-        <h2 style="color: #972726;">Welcome to Coding Nexus: A Premier E-Learning Hub for Novice Programmers and Coding Enthusiasts!</h2>
-        <p style="color: #333;">Dear {{ lastname }}!</p>
-        <p style="color: #333;">We have generated an email code that you can use to register your account.</p>
-        <h3 style="color: #333;">EMAIL CODE:</h3>
-        <p style="font-size: 24px; font-weight: bold; color: #972726;"><b>{{ otp }}</b></p>
+        
+        <h2 style="color: #972726; text-align: center;">Welcome to Coding Nexus: A Premier E-Learning Hub for Novice Programmers and Coding Enthusiasts!</h2>
+        
+        <p style="color: #333; font-size: 16px;">Dear {{ lastname }},</p>
+        
+        <p style="color: #333; font-size: 16px;">Thank you for choosing Coding Nexus as your learning partner! We're excited to have you join our community of aspiring programmers and coding enthusiasts.</p>
+
+        <div style="background-color: #f8f9fa; padding: 20px; margin: 20px 0; border-radius: 5px; text-align: center;">
+            <p style="color: #333; font-size: 16px; margin-bottom: 15px;">To complete your registration and verify your email address, please use the following verification code:</p>
+            
+            <div style="background: #972726; color: white; padding: 15px; border-radius: 5px; font-size: 24px; font-weight: bold; letter-spacing: 5px;">
+                {{ otp }}
+            </div>
+            
+            <p style="color: #666; font-size: 14px; margin-top: 15px;">This code will expire in 10 minutes for security purposes.</p>
+        </div>
+
+        <div style="margin: 25px 0;">
+            <h3 style="color: #972726;">What's Next?</h3>
+            <ul style="color: #333; font-size: 15px; line-height: 1.6;">
+                <li>Enter this verification code on the registration page</li>
+                <li>Complete your profile setup</li>
+                <li>Start exploring our programming courses</li>
+                <li>Join our community of learners</li>
+            </ul>
+        </div>
+
+        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <h4 style="color: #972726; margin-top: 0;">Why Choose Coding Nexus?</h4>
+            <ul style="color: #333; font-size: 15px; line-height: 1.6;">
+                <li>Expert-led programming courses</li>
+                <li>Hands-on coding exercises</li>
+                <li>Interactive learning environment</li>
+                <li>Supportive community</li>
+                <li>Real-world project experience</li>
+            </ul>
+        </div>
+
+        <div style="margin: 25px 0; padding: 15px; border-left: 4px solid #972726; background-color: #f8f9fa;">
+            <p style="color: #333; font-size: 15px; margin: 0;">
+                <strong>Security Notice:</strong> If you didn't request this verification code, please ignore this email or contact our support team immediately.
+            </p>
+        </div>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+            <p style="color: #666; font-size: 14px; text-align: center;">Need help? Contact our support team at support@codingnexus.com</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+            <p style="color: #666; font-size: 12px;">
+                This is an automated message, please do not reply.<br>
+                © 2024 Coding Nexus. All rights reserved.
+            </p>
+            <div style="margin-top: 15px;">
+                <a href="#" style="color: #972726; text-decoration: none; margin: 0 10px;">Privacy Policy</a>
+                <a href="#" style="color: #972726; text-decoration: none; margin: 0 10px;">Terms of Service</a>
+                <a href="#" style="color: #972726; text-decoration: none; margin: 0 10px;">Contact Us</a>
+            </div>
+        </div>
     </div>
 </body>
 </html>
