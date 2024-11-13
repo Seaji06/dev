@@ -14,7 +14,7 @@
                     {% endif %}
                 </div>
                 <div class="user-banner"></div>
-                <div class="username">{{ user_profile.user.username }}</div>
+                <div class="username">{{ user_profile.firstname }} {{ user_profile.lastname }}</div>
                 <a href="{% url 'view_profile' %}" class="view-profile">VIEW PROFILE</a>
                 <a href="{% url 'edit_profile' %}" class="edit-profile">MANAGE ACCOUNT</a>
                 <a href="{% url 'my_classes' %}" class="my-courses">MY COURSES</a>
@@ -30,9 +30,11 @@
                       <div class="avatar">
                           {% if user_profile.display_photo %}
                               <img src="{{ user_profile.display_photo.url }}" alt="Profile Photo">
+                          {% else %}
+                                <img src="{% static 'images/default.jpg' %}" alt="Default Profile Photo">
                           {% endif %}
                       </div>
-                      <a href="changephoto.html" class="edit-link">edit</a>
+                      <a href="{% url 'change_photo' %}" class="edit-link">edit</a>
                   </div>
                   <div class="profile-info">PROFILE INFORMATION:</div>
                   <div class="form-group">

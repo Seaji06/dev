@@ -11,6 +11,7 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('view_profile/', views.view_profile, name='view_profile'),
     path('edit_profile/', views.edit_profile, name='edit_profile'),
+    path('edit_profile/change_photo/', views.change_photo, name='change_photo'),
     path('change_password/', views.change_password, name='change_password'),
     path('delete_account/', views.delete_account, name='delete_account'),
     path('my_classes/', views.my_classes, name='my_classes'),
@@ -34,7 +35,7 @@ urlpatterns = [
     path('admin-page/instructor/<int:pk>/view/', views.instructor_view, name='instructor-view'),
     path('admin-page/instructor/<int:pk>/edit/', views.instructor_edit, name='instructor-edit'),
     path('admin-page/instructor/<int:pk>/delete/', views.instructor_delete, name='instructor-delete'),
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Change Profile Photo{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/editprofile.css' %}" />
+<div class="container">
+    <div class="content">
+        <div class="profile-container">
+            <div class="profile-content">
+                <h2>Change Profile Photo</h2>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="avatar-container">
+                        <div class="avatar">
+                            {% if user_profile.display_photo %}
+                                <img src="{{ user_profile.display_photo.url }}" alt="Current Profile Photo">
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="display_photo">Choose New Photo:</label>
+                        <input type="file" id="display_photo" name="display_photo" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="btn-save">Upload Photo</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

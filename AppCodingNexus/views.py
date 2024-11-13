@@ -770,3 +770,16 @@ def instructor_delete(request, pk):
             messages.error(request, f'Error deleting instructor: {str(e)}')
     
     return redirect('instructor-list')
+
+@login_required(login_url='login')
+def change_photo(request):
+    user_profile = get_object_or_404(UserProfile, user=request.user)
+    
+    if request.method == 'POST':
+        if 'display_photo' in request.FILES:
+            user_profile.display_photo = request.FILES['display_photo']
+            user_profile.save()
+            messages.success(request, 'Profile photo updated successfully!')
+            return redirect('edit_profile')
+    
+    return render(request, 'change_photo.html', {'user_profile': user_profile})
