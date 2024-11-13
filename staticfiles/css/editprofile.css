@@ -14,174 +14,38 @@
    
   .nav-section {
     width: 100%;
-    height: 100px;
+    height: 80px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 20px;
     box-sizing: border-box;
-    position: relative;
+    background-color: #eaeaea;
 }
 
 .nav-items {
     display: flex;
-    justify-content: space-around;
-    flex-grow: 0.5;
+    align-items: center;
+    justify-content: flex-end;
+    flex-grow: 1;
 }
 
 .nav-item {
     color: black;
     font-size: 18px;
-    white-space: nowrap;
+    margin-left: 20px;
 }
 
-.small-icon {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.hamburger-icon {
-    display: none;
-    font-size: 24px;
-    cursor: pointer;
-}
-
-.mobile-nav-items {
-    display: none;
-    flex-direction: column;
-    width: 100%;
-    background-color: #fff;
-    position: absolute;
-    top: 100px;
-    left: 0;
-    z-index: 1;
-}
-
-.mobile-nav-items .nav-item {
-    padding: 10px;
-    text-align: center;
-}
-
-/* Mobile search bar */
-.mobile-search {
-    display: none;
-    width: 100%;
-    padding: 10px;
-    box-sizing: border-box;
-    justify-content: center;
-    align-items: center;
-}
-
-.mobile-search input {
-    width: 80%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.mobile-search button {
-    background-color: transparent;
-    border: none;
-    font-size: 16px;
-    margin-left: 5px;
-    cursor: pointer;
-}
-
-.nav-item a {
-  color: black;
-  text-decoration: none;
-  font-size: 18px;
-  white-space: nowrap;
-}
-
-.nav-item a.active {
-  color: #972726; /* Highlight the active link */
-  font-weight: bold; /* You can add more styles for the active state */
-}
-
-.nav-item a:hover {
-  color: #972726; /* Change color on hover */
-  
-}
-
-@media (max-width: 768px) {
-    .hamburger-icon {
-        display: block;
-    }
-
-    .nav-items {
-        display: none;
-    }
-
-    .small-icon {
-        display: none;
-    }
-
-    .mobile-search {
-        display: flex; /* Show search bar on small screens */
-        position: absolute;
-        top: 70px; /* Position at 50% from the top of the viewport */
-        left: 50%; /* Position at 50% from the left of the viewport */
-        transform: translate(-50%, -50%); /* Move the element back by 50% of its own width and height to center it */
-        width: 70%; /* Set width to 60% for responsiveness */
-        justify-content: center; /* Center the contents horizontally */
-        align-items: center; /* Center the contents vertically */
-    }
-    
-
-    .mobile-nav-items {
-        display: none;
-    }
-
-    .mobile-nav-items.open {
-        display: flex;
-    }
-}
-
-@media (min-width: 769px) {
-    .mobile-search {
-        display: none; /* Hide search bar on larger screens */
-    }
-}
-
-.logo {
-    max-height: 80px; /* Adjust this value based on your design */
-    width: auto; /* Maintain aspect ratio */
-}
-
-/* nav end */
-  
-  /* Responsive welcome text */
-  .container {
-    width: 100%;
-    padding: 20px;
-}
-
-
-/* Content Container */
-.content {
-    width: 100%;
-    padding: 25px;
-    background: white;
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-}
 .user-sidebar {
     width: 337px;
     background: white;
     border-radius: 14px;
     border: 1px solid black;
     padding: 20px;
-    position: relative; /* Required to handle the absolute positioning inside */
+    position: relative;
 }
 
 .user-info {
-    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -193,16 +57,6 @@
     background: #972726;
     border-radius: 50%;
     margin-bottom: 20px;
-    z-index: 2; /* Ensure avatar stays on top */
-}
-
-.user-banner {
-    width: 100%;
-    height: 36px;
-    background: #C25B5B;
-    position: absolute; /* Positioning behind */
-    top: 187px; /* Adjust this to the desired position */
-    z-index: 1; /* Ensure it's behind the other elements */
 }
 
 .username {
@@ -210,20 +64,7 @@
     font-weight: 700;
     margin-bottom: 20px;
     text-align: center;
-    z-index: 2; /* Keep it on top of the banner */
 }
-
-a.view-profile, a.edit-profile, a.my-courses, a.my-exercises, a.my-quizzes, a.delete-account {
-    display: block; /* Make the anchor tag behave like a block element */
-    font-size: 18px;
-    text-align: center;
-    margin-bottom: 15px;
-    position: relative;
-    z-index: 2;
-    text-decoration: none; /* Remove the underline from the links */
-    color: inherit; /* Inherit color from parent or set a specific color */
-}
-
 
 .right-section {
     width: 100%;
@@ -241,7 +82,6 @@ a.view-profile, a.edit-profile, a.my-courses, a.my-exercises, a.my-quizzes, a.de
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
 }
 
 .avatar-container {
@@ -265,21 +105,26 @@ a.view-profile, a.edit-profile, a.my-courses, a.my-exercises, a.my-quizzes, a.de
     text-decoration: underline;
 }
 
-.profile-info {
+.form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
     width: 100%;
-    color: black;
-    font-size: 18px;
+}
+
+.form-group label {
+    width: 150px; /* Fixed width for labels */
+    margin-right: 10px; /* Space between label and input */
+    text-align: right; /* Align text to the right */
 }
 
 .info-field {
-    width: 100%;
+    flex-grow: 1; /* Allow input fields to take remaining space */
     height: 44px;
     background: white;
     border: 1px solid black;
     padding-left: 16px;
     font-size: 18px;
-    display: flex;
-    align-items: center;
 }
 
 .bio-container {
@@ -318,43 +163,52 @@ a.view-profile, a.edit-profile, a.my-courses, a.my-exercises, a.my-quizzes, a.de
     background-color: #C25B5B;
 }
 
-.btn-save:active {
-    background-color: #060682;
-    transform: scale(0.98);
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 50px;
+    background-color: #eaeaea;
+    border-top: 1px solid #ddd;
+    margin-top: 50px;
 }
 
-/* Responsiveness */
-@media (max-width: 1024px) {
-    .content {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .user-sidebar {
-        width: 100%;
-        margin-bottom: 20px;
-    }
-
-    .right-section {
-        width: 100%;
-    }
-
-    .profile-container {
-        padding: 20px;
-    }
-
-    .info-field, .bio-container, .profile-info {
-        width: 100%;
-    }
+.footer-left, .footer-right {
+    width: 10%;
+    text-align: center;
 }
 
+.footer-logo {
+    max-width: 50px;
+    max-height: 50px;
+}
+
+.footer-center {
+    width: 80%;
+    text-align: center;
+}
+
+.footer-center p {
+    margin: 0px 0;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #333;
+}
+
+.footer-center hr {
+    border: none;
+    border-top: 1px solid #000;
+    margin-bottom: 5px;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
-    .content {
-        padding: 10px;
+    .nav-section {
+        flex-direction: column;
     }
 
     .user-sidebar {
-        padding: 10px;
+        width: 100%;
     }
 
     .profile-container {
@@ -377,11 +231,6 @@ a.view-profile, a.edit-profile, a.my-courses, a.my-exercises, a.my-quizzes, a.de
         height: 80px;
     }
 
-    .avatar {
-        width: 120px;
-        height: 120px;
-    }
-
     .info-field, .bio-container {
         font-size: 14px;
     }
@@ -389,13 +238,5 @@ a.view-profile, a.edit-profile, a.my-courses, a.my-exercises, a.my-quizzes, a.de
     .btn-save {
         font-size: 14px;
         width: 120px;
-    }
-
-    .profile-info {
-        font-size: 16px;
-    }
-
-    .bio-text {
-        padding: 15px;
     }
 }
