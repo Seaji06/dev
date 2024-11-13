@@ -14,10 +14,26 @@ class UserProfile(models.Model):
     gender = models.CharField(max_length=15, null=True, blank=True)
     role = models.CharField(max_length=20,choices=[('Student', 'Student'), ('Instructor', 'Instructor')], blank=True)
     bio = models.TextField(blank=True)
+    is_deleted = models.BooleanField(default=False)
+    deletion_requested = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.user.username
         
+    def mark_for_deletion(self):
+        self.is_deleted = True
+        self.deletion_requested = timezone.now()
+        self.save()
+
+    def cancel_deletion(self):
+        self.is_deleted = False
+        self.deletion_requested = None
+        self.save()
+
+    def should_be_deleted(self):
+        if self.is_deleted and self.deletion_requested:
+            return timezone.now() > self.deletion_requested + timezone.timedelta(days=30)
+        return False
 
 class StudentList(models.Model):
     studentID = models.IntegerField()

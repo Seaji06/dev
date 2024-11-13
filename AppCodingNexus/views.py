@@ -32,17 +32,94 @@ def classroom(request):
 def about(request):
     return render(request, 'about.html')
 
+@login_required(login_url='login')
 def profile(request):
-    return render(request, 'profile.html')
+    user_profile = get_object_or_404(UserProfile, user=request.user)
+    return render(request, 'profile.html', {'user_profile': user_profile})
 
+@login_required(login_url='login')
 def view_profile(request):
-    return render(request, 'viewprofile.html')
+    user_profile = get_object_or_404(UserProfile, user=request.user)
+    return render(request, 'viewprofile.html', {'user_profile': user_profile})
 
+@login_required(login_url='login')
 def edit_profile(request):
-    return render(request, 'editprofile.html')
+    user_profile = get_object_or_404(UserProfile, user=request.user)
+    
+    if request.method == 'POST':
+        try:
+            # Update user profile information
+            user_profile.firstname = request.POST.get('firstname')
+            user_profile.lastname = request.POST.get('lastname')
+            user_profile.bio = request.POST.get('bio', '')
+            
+            # Handle profile picture upload
+            if 'display_photo' in request.FILES:
+                user_profile.display_photo = request.FILES['display_photo']
+            
+            user_profile.save()
+            
+            # Update User model information
+            request.user.username = request.POST.get('username')
+            request.user.save()
+            
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('view_profile')
+            
+        except Exception as e:
+            messages.error(request, f'Error updating profile: {str(e)}')
+    
+    return render(request, 'editprofile.html', {'user_profile': user_profile})
 
+@login_required(login_url='login')
 def change_password(request):
+    if request.method == 'POST':
+        old_password = request.POST.get('old-password')
+        new_password = request.POST.get('new-password')
+        confirm_password = request.POST.get('confirm-password')
+        
+        # Verify old password
+        if not request.user.check_password(old_password):
+            messages.error(request, 'Current password is incorrect.')
+            return redirect('change_password')
+        
+        # Check if new passwords match
+        if new_password != confirm_password:
+            messages.error(request, 'New passwords do not match.')
+            return redirect('change_password')
+        
+        # Update password
+        request.user.set_password(new_password)
+        request.user.save()
+        
+        messages.success(request, 'Password changed successfully. Please login again.')
+        return redirect('login')
+    
     return render(request, 'change_password.html')
+
+@login_required(login_url='login')
+def delete_account(request):
+    user_profile = get_object_or_404(UserProfile, user=request.user)
+    
+    if request.method == 'POST':
+        try:
+            user_profile.mark_for_deletion()
+            logout(request)
+            messages.success(request, 'Your account has been scheduled for deletion. If you log in within 30 days, the deletion will be cancelled.')
+            return redirect('login')
+        except Exception as e:
+            messages.error(request, f'Error scheduling account deletion: {str(e)}')
+    
+    # Calculate days remaining if already scheduled for deletion
+    days_remaining = None
+    if user_profile.deletion_requested:
+        delta = user_profile.deletion_requested + timezone.timedelta(days=30) - timezone.now()
+        days_remaining = max(0, delta.days)
+    
+    return render(request, 'delete_account.html', {
+        'user_profile': user_profile,
+        'days_remaining': days_remaining
+    })
 
 def my_classes(request):
     return render(request, 'my_class.html')
@@ -52,9 +129,6 @@ def my_exercises(request):
 
 def my_quizzes(request):
     return render(request, 'my_quizz.html')
-
-def delete_account(request):
-    return render(request, 'delete_account.html')
 
 def generate_otp():
     """Generate a 6-digit OTP."""
@@ -186,13 +260,22 @@ def verify_otp(request):
 
 def user_login(request):
     if request.method == 'POST':
-        login_input = request.POST['email']  # Can be email or username
+        login_input = request.POST['email']
         password = request.POST['password']
 
         try:
-            # Check if the input is an email
             user = User.objects.get(Q(email=login_input) | Q(username=login_input))
-            username = user.username  # Retrieve the username to authenticate
+            username = user.username
+            
+            # Check if user has a pending deletion and cancel it
+            try:
+                profile = user.userprofile
+                if profile.is_deleted:
+                    profile.cancel_deletion()
+                    messages.success(request, 'Welcome back! Your account deletion has been cancelled.')
+            except UserProfile.DoesNotExist:
+                pass
+
         except User.DoesNotExist:
             username = None
 

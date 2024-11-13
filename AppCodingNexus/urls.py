@@ -31,7 +31,6 @@ urlpatterns = [
     path('admin-page/ctu-student-list/', views.ctu_student_list, name='ctu-student-list'),
     path('admin-page/instructor-form/', views.instructor_form, name='instructor-form'),
     #path('admin-page/student-form/', views.student_form, name='student-form'),
-    path('admin-page/ctu-student-list/', views.ctu_student_list, name='ctu-student-list'),
     path('admin-page/instructor/<int:pk>/view/', views.instructor_view, name='instructor-view'),
     path('admin-page/instructor/<int:pk>/edit/', views.instructor_edit, name='instructor-edit'),
     path('admin-page/instructor/<int:pk>/delete/', views.instructor_delete, name='instructor-delete'),

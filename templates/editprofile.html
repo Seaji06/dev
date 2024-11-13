@@ -1,53 +1,86 @@
-
 {% extends "base.html" %}
-{%load static%}
+{% load static %}
 {% block title %}Coding Nexus{% endblock %}
 
 {% block content %}
-<style>
-    .nav-item a#profile {
-    color: #972726; /* Highlight the active link */
-    font-weight: bold; /* You can add more styles for the active state */
-    }
-</style>
 <link rel="stylesheet" href="{% static 'css/editprofile.css' %}" />
-  <div class="content">
-      
+<div class="container">
+    <div class="content">
         <div class="user-sidebar">
-          <div class="user-info">
-            <div class="user-avatar"></div>
-            <div class="user-banner"></div>
-            <div class="username">Last Name</div>
-            <a href="{% url 'view_profile' %}" class="view-profile">VIEW PROFILE</a>
-              <a href="{% url 'profile' %}" class="edit-profile">MANAGE ACCOUNT</a>
-              <a href="{% url 'my_classes' %}" class="my-courses">MY CLASSROOM</a>
-              <a href="{% url 'my_exercises' %}" class="my-exercises">MY EXERCISES</a>
-              <a href="{% url 'my_quizzes' %}" class="my-quizzes">MY QUIZZES</a>
-              
-          </div>
+            <div class="user-info">
+                <div class="avatar">
+                    {% if user_profile.display_photo %}
+                        <img src="{{ user_profile.display_photo.url }}" alt="Profile Photo">
+                    {% endif %}
+                </div>
+                <div class="user-banner"></div>
+                <div class="username">{{ user_profile.user.username }}</div>
+                <a href="{% url 'view_profile' %}" class="view-profile">VIEW PROFILE</a>
+                <a href="{% url 'edit_profile' %}" class="edit-profile">MANAGE ACCOUNT</a>
+                <a href="{% url 'my_classes' %}" class="my-courses">MY COURSES</a>
+                <a href="{% url 'my_exercises' %}" class="my-exercises">MY EXERCISES</a>
+                <a href="{% url 'my_quizzes' %}" class="my-quizzes">MY QUIZZES</a>
+            </div>
         </div>
-        
+
         <div class="right-section">
-          <div class="profile-container">
-            <div class="profile-content">
-              <div class="avatar-container">
-                <div class="avatar"></div>
-                <a href="changephoto.html" class="edit-link">edit</a>
+            <div class="profile-container">
+              <div class="profile-content">
+                  <div class="avatar-container">
+                      <div class="avatar">
+                          {% if user_profile.display_photo %}
+                              <img src="{{ user_profile.display_photo.url }}" alt="Profile Photo">
+                          {% endif %}
+                      </div>
+                      <a href="changephoto.html" class="edit-link">edit</a>
+                  </div>
+                  <div class="profile-info">PROFILE INFORMATION:</div>
+                  <div class="form-group">
+                      <label for="username">Username</label>
+                      <input class="info-field" id="username" type="text" placeholder="username...." value="{{ user_profile.user.username }}">
+                  </div>
+                  <div class="form-group">
+                      <label for="firstname">First Name</label>
+                      <input class="info-field" id="firstname" type="text" placeholder="first name..." value="{{ user_profile.firstname }}">
+                  </div>
+                  <div class="form-group">
+                      <label for="lastname">Last Name</label>
+                      <input class="info-field" id="lastname" type="text" placeholder="last name..." value="{{ user_profile.lastname }}">
+                  </div>
+                  <div class="bio-container">
+                      <label for="bio">Bio</label>
+                      <textarea class="bio-text" id="bio" placeholder="add bio...">{{ user_profile.bio }}</textarea>
+                  </div>
+                  <div class="btn-save">SAVE</div>
               </div>
-              <div class="profile-info">PROFILE INFORMATION:</div>
-              <input class="info-field" type="text" placeholder="username....">
-            <input class="info-field" type="text" placeholder="first name...">
-            <input class="info-field" type="text" placeholder="last name...">
-            <input class="info-field" type="number" placeholder="student number">
-            <div class="bio-container">
-                <textarea class="bio-text" placeholder="add bio..."></textarea>
             </div>
-            <div class="btn-save">SAVE</div>
-              </div>
-            </div>
-         </div>
-  </div>
-    
-    
-  </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-left">
+            <img src="{% static 'assets/logo.png' %}" alt="Left Logo" class="footer-logo">
+        </div>
+        <div class="footer-center">
+            <hr>
+            <p>&copy; 2024 Coding Nexus. All Rights Reserved.</p>
+        </div>
+        <div class="footer-right">
+            <img src="{% static 'assets/ctulogo.png' %}" alt="Right Logo" class="footer-logo">
+        </div>
+    </footer>
+</div>
+
+<script>
+    function toggleNav() {
+        var mobileNav = document.getElementById("mobileNav");
+        mobileNav.classList.toggle("open");
+    }
+
+    document.querySelector('.profile-icon').addEventListener('click', function (event) {
+        event.preventDefault();
+        var dropdown = document.querySelector('.dropdown-content');
+        dropdown.classList.toggle('open');
+    });
+</script>
 {% endblock %}

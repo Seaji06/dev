@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 {%load static%}
 {% block title %}Coding Nexus{% endblock %}
@@ -6,7 +5,7 @@
 {% block content %}
 <style>
     .nav-item a#profile {
-    color: #972726; /* Highlight the active link */
+    color: #972726; /* Highlight the asctive link */
     font-weight: bold; /* You can add more styles for the active state */
     }
 </style>
@@ -17,7 +16,7 @@
       <div class="user-info">
         <div class="user-avatar"></div>
         <div class="user-banner"></div>
-        <div class="username">Last Name</div>
+        <div class="username">{{ user_profile.lastname }}</div>
         <a href="{% url 'view_profile' %}" class="view-profile">VIEW PROFILE</a>
           <a href="{% url 'profile' %}" class="edit-profile">MANAGE ACCOUNT</a>
           <a href="{% url 'my_classes' %}" class="my-courses">MY CLASSROOM</a>
@@ -31,24 +30,35 @@
             <div class="deletebox">
                 <div class="header">Account Deletion</div>
 
-                <div class="description">
-                  We’re sorry to see you go! If you wish to delete your account from our E-Learning Hub, please note that this action is permanent and all your data, including progress, saved courses, and achievements, will be lost. To proceed, select the <b>"Delete Account"</b> button below. For any questions or assistance, please contact our support team.
-                  <br/><br/>
-                  Thank you for being part of our learning community!
-                </div>
-                
-                <div class="delete-button">
-                    <div class="button-text">Delete Account</div>
-                  </div>
-              </div>
-              
+                {% if user_profile.is_deleted %}
+                    <div class="deletion-warning">
+                        <h3>Account Scheduled for Deletion</h3>
+                        <p>Your account is scheduled to be permanently deleted in {{ days_remaining }} days.</p>
+                        <p>To cancel the deletion process, simply log in to your account again.</p>
+                    </div>
+                {% else %}
+                    <div class="description">
+                        <p>We're sorry to see you go! Before you proceed, please note:</p>
+                        <ul>
+                            <li>Your account will be scheduled for deletion and deactivated immediately</li>
+                            <li>You have 30 days to change your mind by logging in again</li>
+                            <li>After 30 days, your account and all associated data will be permanently deleted</li>
+                            <li>This action cannot be undone after the 30-day period</li>
+                        </ul>
+                        <br/>
+                        <p>Thank you for being part of our learning community!</p><br><br>
+                    </div>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="delete-button" onclick="return confirm('Are you sure you want to schedule your account for deletion? You can cancel this within 30 days by logging in again.')">
+                            <div class="button-text">Schedule Account Deletion</div>
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
         </div>
-      </div>
-      
+    </div>
 </div>
-  
-  
-</div>
-
 
 {% endblock %}
