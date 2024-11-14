@@ -13,7 +13,6 @@
                         <img src="{{ user_profile.display_photo.url }}" alt="Profile Photo">
                     {% endif %}
                 </div>
-                <div class="user-banner"></div>
                 <div class="username">{{ user_profile.firstname }} {{ user_profile.lastname }}</div>
                 <a href="{% url 'view_profile' %}" class="view-profile">VIEW PROFILE</a>
                 <a href="{% url 'edit_profile' %}" class="edit-profile">MANAGE ACCOUNT</a>
@@ -27,7 +26,7 @@
             <div class="profile-container">
               <div class="profile-content">
                   <div class="avatar-container">
-                      <div class="avatar">
+                      <div class="user-avatar">
                           {% if user_profile.display_photo %}
                               <img src="{{ user_profile.display_photo.url }}" alt="Profile Photo">
                           {% else %}
