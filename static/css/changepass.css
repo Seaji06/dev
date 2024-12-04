@@ -201,7 +201,7 @@
     height: 36px;
     background: #C25B5B;
     position: absolute; /* Positioning behind */
-    top: 187px; /* Adjust this to the desired position */
+    top: 155px; /* Adjust this to the desired position */
     z-index: 1; /* Ensure it's behind the other elements */
 }
 

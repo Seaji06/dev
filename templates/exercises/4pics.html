@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/4pics.css' %}" />
+<div class="exercise-container">
+    <h1>4 Pics, 1 Word</h1>
+    <p class="puzzle-counter">Puzzle {{ current_puzzle_number }} of {{ total_puzzles }}</p>
+    
+    <div class="image-frame">
+        <div class="image-grid">
+            <img src="{{ puzzle.image1.url }}" alt="Image 1" class="pic">
+            <img src="{{ puzzle.image2.url }}" alt="Image 2" class="pic">
+            <img src="{{ puzzle.image3.url }}" alt="Image 3" class="pic">
+            <img src="{{ puzzle.image4.url }}" alt="Image 4" class="pic">
+        </div>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <input type="text" name="answer" placeholder="Your answer" class="answer-input" required>
+        <button type="submit">Submit</button>
+    </form>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

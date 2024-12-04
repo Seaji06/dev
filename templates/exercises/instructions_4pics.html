@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4 Pics, 1 Word - Instructions</title>
+  <link rel="stylesheet" href="globals.css" />
+  <link rel="stylesheet" href="instruction_4pics.css" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+  />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+</head>
+<body>
+    <div class="instructions-container">
+      <h1>4 Pics, 1 Word - Instructions</h1>
+      <p>Welcome to the "4 Pics, 1 Word" game! Test your skills by identifying the common word that links four images.</p>
+      <h2>Objective</h2>
+      <p>Identify the single word that connects all four displayed images.</p>
+      <h2>How to Play</h2>
+      <ol>
+        <li><strong>View the Images:</strong> Examine the four images presented on the screen.</li>
+        <li><strong>Find the Connection:</strong> Determine the word that links all four images.</li>
+        <li><strong>Enter Your Answer:</strong> Type your answer into the input box labeled "Your Answer".</li>
+        <li><strong>Submit Your Answer:</strong> Click the "Submit" button to check if your answer is correct.</li>
+        <li><strong>Navigate Between Puzzles:</strong> Use the "Previous" and "Next" buttons to move between puzzles.</li>
+      </ol>
+      <h2>Game Rules</h2>
+      <ul>
+        <li><strong>One Word Only:</strong> Your answer must be a single word.</li>
+        <li><strong>Case Insensitivity:</strong> Answers are not case-sensitive.</li>
+        <li><strong>Answer All Puzzles:</strong> Complete all puzzles in the set to finish the game.</li>
+      </ul>
+      <h2>Scoring</h2>
+      <p>Earn one point for each correct answer. Your final score will be displayed at the end of the game.</p>
+      <h2>Tips for Success</h2>
+      <ul>
+        <li>Focus on details in each image.</li>
+        <li>Think of synonyms or related terms.</li>
+        <li>Don't overthink—sometimes, the simplest word is the right answer!</li>
+      </ul>
+      <a href="exercise.html" class="gamebtn">Start Game</a>
+    </div>
+  </div>
+  <script>
+    function toggleNav() {
+      var mobileNav = document.getElementById("mobileNav");
+      mobileNav.classList.toggle("open");
+    }
+
+    document.querySelector('.profile-icon').addEventListener('click', function (event) {
+      event.preventDefault();
+      var dropdown = document.querySelector('.dropdown-content');
+      dropdown.classList.toggle('open');
+    });
+  </script>
+</body>
+</html>

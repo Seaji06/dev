@@ -35,6 +35,14 @@ urlpatterns = [
     path('admin-page/instructor/<int:pk>/view/', views.instructor_view, name='instructor-view'),
     path('admin-page/instructor/<int:pk>/edit/', views.instructor_edit, name='instructor-edit'),
     path('admin-page/instructor/<int:pk>/delete/', views.instructor_delete, name='instructor-delete'),
+    path('view_pdf/<int:course_id>/', views.view_pdf, name='view_pdf'),
+    path('create_classroom/', views.create_classroom, name='create_classroom'),
+    path('join_classroom/', views.join_classroom, name='join_classroom'),
+    path('lectures/<int:classroom_id>/', views.lectures, name='lectures'),
+    path('activities/<int:classroom_id>/', views.activities, name='activities'),
+    path('students/<int:classroom_id>/', views.students, name='students'),
+    path('4pics/', views.four_pics_game, name='four_pics_game'),
+    path('4pics/<int:puzzle_id>/', views.four_pics_game, name='four_pics_game'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

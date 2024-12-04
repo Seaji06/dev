@@ -56,8 +56,8 @@ class UserActivity(models.Model):
             manila_tz = pytz.timezone('Asia/Manila')
             self.date = timezone.now().astimezone(manila_tz)
         
-        # This line automatically deletes logs older than 7 days
-        seven_days_ago = timezone.now() - timedelta(days=7)
+        # This line automatically deletes logs older than 30 days
+        seven_days_ago = timezone.now() - timedelta(days=30)
         UserActivity.objects.filter(date__lt=seven_days_ago).delete()
         
         # Save the current log
@@ -72,3 +72,42 @@ class UserActivity(models.Model):
     def cleanup_old_logs(cls):
         seven_days_ago = timezone.now() - timedelta(days=7)
         cls.objects.filter(date__lt=seven_days_ago).delete()
+
+class Courses(models.Model):
+    course_name = models.CharField(max_length=100)
+    course_image = models.ImageField(upload_to='course_images/', default='default.jpg')
+    pdf_file = models.FileField(upload_to='pdf_files/', default='default.pdf')
+
+    def __str__(self):
+        return self.course_name
+
+class Classroom(models.Model):
+    name = models.CharField(max_length=255)
+    code = models.CharField(max_length=10, unique=True)
+    instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='instructed_classes')
+    students = models.ManyToManyField(User, related_name='enrolled_classes', blank=True)
+    course = models.ForeignKey('Courses', on_delete=models.CASCADE)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return self.name
+
+class FourPicsOneWordPuzzle(models.Model):
+    image1 = models.ImageField(upload_to='4pics/')
+    image2 = models.ImageField(upload_to='4pics/')
+    image3 = models.ImageField(upload_to='4pics/')
+    image4 = models.ImageField(upload_to='4pics/')
+    answer = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f"Puzzle {self.id}: {self.answer}"
+
+class PuzzleAttempt(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    puzzle = models.ForeignKey(FourPicsOneWordPuzzle, on_delete=models.CASCADE)
+    answer = models.CharField(max_length=50)
+    is_correct = models.BooleanField()
+    attempt_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.puzzle.answer} - {'Correct' if self.is_correct else 'Incorrect'}"

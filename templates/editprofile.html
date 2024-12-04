@@ -3,6 +3,12 @@
 {% block title %}Coding Nexus{% endblock %}
 
 {% block content %}
+<style>
+    .nav-item a#profile {
+    color: #972726; /* Highlight the asctive link */
+    font-weight: bold; /* You can add more styles for the active state */
+    }
+</style>
 <link rel="stylesheet" type="text/css" href="{% static 'css/editprofile.css' %}" />
 <div class="container">
     <div class="content">
@@ -13,9 +19,10 @@
                         <img src="{{ user_profile.display_photo.url }}" alt="Profile Photo">
                     {% endif %}
                 </div>
+                <div class="user-banner"></div>
                 <div class="username">{{ user_profile.firstname }} {{ user_profile.lastname }}</div>
                 <a href="{% url 'view_profile' %}" class="view-profile">VIEW PROFILE</a>
-                <a href="{% url 'edit_profile' %}" class="edit-profile">MANAGE ACCOUNT</a>
+                <a href="{% url 'profile' %}" class="edit-profile">MANAGE ACCOUNT</a>
                 <a href="{% url 'my_classes' %}" class="my-courses">MY COURSES</a>
                 <a href="{% url 'my_exercises' %}" class="my-exercises">MY EXERCISES</a>
                 <a href="{% url 'my_quizzes' %}" class="my-quizzes">MY QUIZZES</a>

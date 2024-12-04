@@ -10,13 +10,17 @@
     }
 </style>
 <link rel="stylesheet" href="{% static 'css/deleteacc.css' %}" />
+<link rel="stylesheet" href="{% static 'css/editprofile.css' %}" />
 <div class="content">
         
     <div class="user-sidebar">
       <div class="user-info">
-        <div class="user-avatar"></div>
-        <div class="user-banner"></div>
-        <div class="username">{{ user_profile.lastname }}</div>
+        <div class="avatar">
+            {% if user_profile.display_photo %}
+                <img src="{{ user_profile.display_photo.url }}" alt="Profile Photo">
+            {% endif %}
+        </div>
+        <div class="username">{{ user_profile.firstname }} {{ user_profile.lastname }}</div>
         <a href="{% url 'view_profile' %}" class="view-profile">VIEW PROFILE</a>
           <a href="{% url 'profile' %}" class="edit-profile">MANAGE ACCOUNT</a>
           <a href="{% url 'my_classes' %}" class="my-courses">MY CLASSROOM</a>

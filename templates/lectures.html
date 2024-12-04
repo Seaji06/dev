@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Lectures - Coding Nexus{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/lectures.css' %}" />
+<div class="container">
+    <div class="classroom-nav">
+        <div class="background-box"></div>
+        <div class="title">
+          <span class="title-text"></span>
+          <span class="programming-title">PROGRAMMING 1</span>
+        </div>
+        <a href="{% url 'lectures' classroom.id %}" class="lectures">LECTURES</a>
+        <a href="{% url 'activities' classroom.id %}" class="activities">ACTIVITIES</a>
+        <a href="{% url 'students' classroom.id %}" class="students">STUDENTS</a>
+        <a href="{% url 'classroom' %}" class="classroom-title">CLASSROOM</a>
+    </div>
+      
+    <div class="lms">
+        <div class="lms-title">PRELIM PERIOD</div>
+    
+        {% for material in learning_materials %}
+        <a href="{% url 'document' material.id %}" class="box">
+            <img src="{% static 'assets/books.png' %}" class="box-background">
+            <div class="box-content">{{ material.title }}<br/>WEEK {{ material.week }}</div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

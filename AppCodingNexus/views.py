@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.http import BadHeaderError
+from django.http import BadHeaderError, FileResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -8,7 +8,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.contrib import messages
 from django.conf import settings
-from .models import StudentList, UserActivity, UserProfile
+from .models import StudentList, UserActivity, UserProfile, Courses, Classroom, FourPicsOneWordPuzzle, PuzzleAttempt
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
@@ -18,16 +18,29 @@ from django.utils import timezone
 import random
 import pytz
 from django.utils.timezone import activate
+import string
+from .forms import ClassroomForm
 
 #@login_required(login_url='login')
 def home(request):
     return render(request, 'home.html')
 
 def course(request):
-    return render(request, 'courses.html')
+    courses = Courses.objects.all()  # Fetch all courses from the database
+    return render(request, 'courses.html', {'courses': courses})
 
+@login_required(login_url='login')
 def classroom(request):
-    return render(request, 'classroom.html')
+    user_profile = UserProfile.objects.get(user=request.user)
+    enrolled_classes = user_profile.user.enrolled_classes.all()
+    instructed_classes = user_profile.user.instructed_classes.all()
+    
+    return render(request, 'classroom.html', {
+        'enrolled_classes': enrolled_classes,
+        'instructed_classes': instructed_classes,
+        'is_instructor': user_profile.role == 'Instructor',
+        'is_student': user_profile.role == 'Student',
+    })
 
 def about(request):
     return render(request, 'about.html')
@@ -73,6 +86,7 @@ def edit_profile(request):
 
 @login_required(login_url='login')
 def change_password(request):
+    user_profile = get_object_or_404(UserProfile, user=request.user)
     if request.method == 'POST':
         old_password = request.POST.get('old-password')
         new_password = request.POST.get('new-password')
@@ -95,7 +109,7 @@ def change_password(request):
         messages.success(request, 'Password changed successfully. Please login again.')
         return redirect('login')
     
-    return render(request, 'change_password.html')
+    return render(request, 'change_password.html', {'user_profile': user_profile})
 
 @login_required(login_url='login')
 def delete_account(request):
@@ -413,6 +427,9 @@ def admin_page(request):
 
     # Calculate total users
     total_users = instructor_count + student_count
+    
+    # Calculate total classrooms
+    classroom_count = Classroom.objects.count()
 
     # Fetch recent students (adjust limit as needed, e.g., last 5 students)
     new_students = UserProfile.objects.filter(role='Student').order_by('-user__date_joined')[:5]
@@ -435,6 +452,7 @@ def admin_page(request):
         'instructor_count': instructor_count,
         'student_count': student_count,
         'total_users': total_users,
+        'classroom_count': classroom_count,
         'new_students': new_students,
         'recent_logs': recent_logs,
     }
@@ -783,3 +801,105 @@ def change_photo(request):
             return redirect('edit_profile')
     
     return render(request, 'change_photo.html', {'user_profile': user_profile})
+
+def view_pdf(request, course_id):
+    course = get_object_or_404(Courses, id=course_id)
+    response = FileResponse(course.pdf_file.open('rb'), content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="{course.pdf_file.name}"'
+    return response
+
+def generate_unique_code():
+    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+
+@login_required(login_url='login')
+def create_classroom(request):
+    if request.method == 'POST':
+        form = ClassroomForm(request.POST)
+        if form.is_valid():
+            classroom = form.save(commit=False)
+            classroom.instructor = request.user
+            classroom.code = generate_unique_code()
+            classroom.save()
+            messages.success(request, f'Classroom "{classroom.name}" created with code: {classroom.code}')
+            return redirect('classroom')
+    else:
+        form = ClassroomForm()
+    return render(request, 'create_classroom.html', {'form': form})
+
+@login_required(login_url='login')
+def join_classroom(request):
+    if request.method == 'POST':
+        code = request.POST.get('code')
+        try:
+            classroom = Classroom.objects.get(code=code)
+            classroom.students.add(request.user)
+            messages.success(request, f'Joined classroom: {classroom.name}')
+            return redirect('classroom')
+        except Classroom.DoesNotExist:
+            messages.error(request, 'Invalid classroom code.')
+    return render(request, 'join_classroom.html')
+
+def lectures(request, classroom_id):
+    classroom = get_object_or_404(Classroom, id=classroom_id)
+    return render(request, 'lectures.html', {'classroom': classroom})
+
+def activities(request, classroom_id):
+    classroom = get_object_or_404(Classroom, id=classroom_id)
+    return render(request, 'activities.html', {'classroom': classroom})
+
+def students(request, classroom_id):
+    classroom = get_object_or_404(Classroom, id=classroom_id)
+    return render(request, 'students.html', {'classroom': classroom})
+
+@login_required(login_url='login')
+def four_pics_game(request, puzzle_id=None):
+    puzzles = FourPicsOneWordPuzzle.objects.all()
+    
+    if puzzle_id is None:
+        current_puzzle = puzzles.first()
+    else:
+        current_puzzle = get_object_or_404(FourPicsOneWordPuzzle, id=puzzle_id)
+    
+    # Handle form submission
+    if request.method == 'POST':
+        user_answer = request.POST.get('answer', '').lower().strip()
+        is_correct = user_answer == current_puzzle.answer.lower()
+        
+        # Record the attempt
+        PuzzleAttempt.objects.create(
+            user=request.user,
+            puzzle=current_puzzle,
+            answer=user_answer,
+            is_correct=is_correct
+        )
+        
+        if is_correct:
+            messages.success(request, "Correct! 🎉")
+        else:
+            messages.error(request, f"Wrong!")
+        
+        # Move to the next puzzle or show final score
+        next_puzzle = puzzles.filter(id__gt=current_puzzle.id).first()
+        if next_puzzle:
+            return redirect('four_pics_game', puzzle_id=next_puzzle.id)
+        else:
+            # Calculate user's overall progress
+            total_attempts = PuzzleAttempt.objects.filter(user=request.user).count()
+            correct_attempts = PuzzleAttempt.objects.filter(user=request.user, is_correct=True).count()
+            messages.info(request, f"Game Over! You got {correct_attempts} out of {total_attempts} correct.")
+            return redirect('four_pics_game')
+    
+    # Get user's attempts for this puzzle
+    user_attempts = PuzzleAttempt.objects.filter(
+        user=request.user,
+        puzzle=current_puzzle
+    ).order_by('-attempt_date')
+    
+    context = {
+        'puzzle': current_puzzle,
+        'total_puzzles': puzzles.count(),
+        'current_puzzle_number': current_puzzle.id,
+        'user_attempts': user_attempts[:5],  # Show last 5 attempts
+    }
+    
+    return render(request, 'exercises/4pics.html', context)

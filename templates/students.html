@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Students - Coding Nexus{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/students.css' %}" />
+<div class="container">
+    <div class="classroom-nav">
+        <div class="background-box"></div>
+        <div class="title">
+          <span class="title-text"></span>
+          <span class="programming-title">{{ classroom.course.course_name }}</span>
+        </div>
+        <a href="{% url 'lectures' classroom.id %}" class="lectures">LECTURES</a>
+        <a href="{% url 'activities' classroom.id %}" class="activities">ACTIVITIES</a>
+        <a href="{% url 'students' classroom.id %}" class="students">STUDENTS</a>
+        <a href="{% url 'classroom' %}" class="classroom-title">CLASSROOM</a>
+    </div>
+    
+    <div class="student-container">
+        <div class="instructor-container">
+            <div class="instructor-header">
+                <div class="instructor-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <div class="instructor-title">INSTRUCTOR</div>
+            </div>
+            <div class="instructor-info">
+                <img class="instructor-image" src="{{ classroom.instructor.userprofile.display_photo.url }}" />
+                <div class="instructor-name">{{ classroom.instructor.first_name }} {{ classroom.instructor.last_name }}</div>
+            </div>
+        </div>
+        
+        <div class="students-container">
+            <div class="students-header">
+                <div class="students-title-container">
+                    <div class="students-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="students-title">STUDENTS</div>
+                </div>
+                <div class="students-count">{{ classroom.students.count }} students</div>
+            </div>
+            
+            <div class="students-list">
+                {% for student in classroom.students.all %}
+                <div class="student-item">
+                    <img class="student-image" src="{{ student.userprofile.display_photo.url }}" />
+                    <div class="student-name">{{ student.first_name }} {{ student.last_name }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
