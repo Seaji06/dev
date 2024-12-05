@@ -73,6 +73,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.js"></script>
     <script>
+        // Initialize Notyf
         var notyf = new Notyf({
             position: {
                 x: 'center',
@@ -89,17 +90,37 @@
         }
     </script>
 
-    {% if messages %}
+    <!-- Move Django messages to a data attribute -->
+    <div id="django-messages" style="display: none;"
+        data-messages="[
+            {% for message in messages %}
+                {
+                    'message': '{{ message|escapejs }}',
+                    'tags': '{{ message.tags|escapejs }}'
+                }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]">
+    </div>
+
     <script>
-        {% for message in messages %}
-        {% if message.tags == 'success' %}
-        showSuccessMessage("{{ message }}");
-        {% elif message.tags == 'error' %}
-        showErrorMessage("{{ message }}");
-        {% endif %}
-        {% endfor %}
+        document.addEventListener('DOMContentLoaded', function() {
+            const messagesDiv = document.getElementById('django-messages');
+            if (messagesDiv) {
+                try {
+                    const messages = JSON.parse(messagesDiv.dataset.messages || '[]');
+                    messages.forEach(function(msg) {
+                        if (msg.tags === 'success') {
+                            showSuccessMessage(msg.message);
+                        } else if (msg.tags === 'error') {
+                            showErrorMessage(msg.message);
+                        }
+                    });
+                } catch (e) {
+                    console.error('Error parsing messages:', e);
+                }
+            }
+        });
     </script>
-    {% endif %}
 </body>
 
 </html>

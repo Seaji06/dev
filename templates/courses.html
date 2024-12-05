@@ -21,9 +21,8 @@
 <div class="welcome-text">WELCOME TO COURSES</div>
 <div class="courses">
     {% for course in courses %}
-    <div class="course-box" onclick="showPDF({{ course.id }});">
+    <div class="course-box" onclick="showPDF('{{ course.id }}');">
         <img class="course-card" src="{{ course.course_image.url }}" alt="{{ course.course_name }}">
-        <!-- <div class="course-name">{{ course.course_name }}</div> -->
     </div>
     {% endfor %}
 </div>

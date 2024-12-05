@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.http import BadHeaderError, FileResponse, JsonResponse
+from django.http import BadHeaderError, FileResponse, JsonResponse, HttpResponse, Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -277,11 +277,12 @@ def verify_otp(request):
 
 def user_login(request):
     if request.method == 'POST':
-        login_input = request.POST['email']
+        login_input = request.POST['email'].lower()  # Convert input to lowercase
         password = request.POST['password']
 
         try:
-            user = User.objects.get(Q(email=login_input) | Q(username=login_input))
+            # Convert stored username/email to lowercase for comparison
+            user = User.objects.get(Q(email__iexact=login_input) | Q(username__iexact=login_input))
             username = user.username
             
             # Check if user has a pending deletion and cancel it
@@ -807,9 +808,19 @@ def change_photo(request):
 
 def view_pdf(request, course_id):
     course = get_object_or_404(Courses, id=course_id)
-    response = FileResponse(course.pdf_file.open('rb'), content_type='application/pdf')
-    response['Content-Disposition'] = f'inline; filename="{course.pdf_file.name}"'
-    return response
+    if not course.pdf_file:
+        raise Http404("No PDF file found for this course.")
+    
+    try:
+        # Open the PDF file in binary read mode
+        with course.pdf_file.open('rb') as pdf:
+            # Create response with PDF content
+            response = HttpResponse(pdf.read(), content_type='application/pdf')
+            # Set headers to force browser display
+            response['Content-Disposition'] = f'inline; filename="{course.pdf_file.name}"'
+            return response
+    except Exception as e:
+        raise Http404(f"Error opening PDF file: {str(e)}")
 
 def generate_unique_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
