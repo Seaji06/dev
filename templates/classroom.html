@@ -7,13 +7,21 @@
 
 <link rel="stylesheet" href="{% static 'css/educator.css' %}" />
 
+<!-- Add Bootstrap CSS and JS if not already included -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 <div class="container">
     {% if is_student %}
     <div class="title-container">
         <div class="title">CLASSES YOU ARE ENROLLED</div>
         <div class="join-class-button">
             <div class="join-class-bg"></div>
-            <div class="join-class-text">Join Class</div>
+            <div class="join-class-text">
+                <a href="#" data-toggle="modal" data-target="#joinClassModal">Join Class</a>
+            </div>
         </div>
     </div>
     <div class="educators">
@@ -31,6 +39,12 @@
     {% if is_instructor %}
     <div class="title-container">
         <div class="title">CLASSES YOU ARE TEACHING</div>
+        <div class="join-class-button">
+            <div class="join-class-bg"></div>
+            <div class="join-class-text">
+                <a href="#" data-toggle="modal" data-target="#createClassModal">Create Class</a>
+            </div>
+        </div>
     </div>
     <div class="educators">
         {% for classroom in instructed_classes %}
@@ -43,6 +57,64 @@
         {% endfor %}
     </div>
     {% endif %}
+</div>
+
+<!-- Modal HTML -->
+<div class="modal fade" id="joinClassModal" tabindex="-1" role="dialog" aria-labelledby="joinClassModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="joinClassModalLabel">Join Classroom</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'join_classroom' %}">
+                    {% csrf_token %}
+                    <label for="code">Classroom Code:</label>
+                    <input type="text" name="code" id="code" required>
+                    <button type="submit" class="btn btn-primary">Join</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this new modal for creating classroom -->
+<div class="modal fade" id="createClassModal" tabindex="-1" role="dialog" aria-labelledby="createClassModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createClassModalLabel">Create Classroom</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{% url 'create_classroom' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="name">Class Name:</label>
+                        <input type="text" class="form-control" name="name" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="course">Course:</label>
+                        <select class="form-control" name="course" id="course" required>
+                            {% for course in courses %}
+                                <option value="{{ course.id }}">{{ course.course_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <textarea class="form-control" name="description" id="description" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Class</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

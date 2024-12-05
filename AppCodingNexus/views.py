@@ -34,12 +34,14 @@ def classroom(request):
     user_profile = UserProfile.objects.get(user=request.user)
     enrolled_classes = user_profile.user.enrolled_classes.all()
     instructed_classes = user_profile.user.instructed_classes.all()
+    courses = Courses.objects.all()
     
     return render(request, 'classroom.html', {
         'enrolled_classes': enrolled_classes,
         'instructed_classes': instructed_classes,
         'is_instructor': user_profile.role == 'Instructor',
         'is_student': user_profile.role == 'Student',
+        'courses': courses,
     })
 
 def about(request):

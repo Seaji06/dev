@@ -10,7 +10,12 @@
         <div class="background-box"></div>
         <div class="title">
           <span class="title-text"></span>
-          <span class="programming-title">PROGRAMMING 1</span>
+          <span class="programming-title">{{ classroom.name }}</span>
+          {% if classroom.instructor == request.user %}
+          <div class="classroom-code">
+              Class Code: {{ classroom.code }}
+          </div>
+          {% endif %}
         </div>
         <a href="{% url 'lectures' classroom.id %}" class="lectures">LECTURES</a>
         <a href="{% url 'activities' classroom.id %}" class="activities">ACTIVITIES</a>
@@ -29,4 +34,16 @@
         {% endfor %}
     </div>
 </div>
+
+<style>
+.classroom-code {
+    font-size: 14px;
+    color: #666;
+    margin-top: 5px;
+    background-color: #f8f9fa;
+    padding: 5px 10px;
+    border-radius: 4px;
+    display: inline-block;
+}
+</style>
 {% endblock %}
