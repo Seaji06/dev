@@ -9,37 +9,22 @@
         color: #972726;
         font-weight: bold;
     }
-    .pdf-viewer {
-        width: 100%;
-        height: 600px;
-        border: none;
-        margin-top: 20px;
-    }
 </style>
 <link rel="stylesheet" href="{% static 'css/courses.css' %}" />
 
 <div class="welcome-text">WELCOME TO COURSES</div>
 <div class="courses">
     {% for course in courses %}
-    <div class="course-box" onclick="showPDF('{{ course.id }}');">
+    <div class="course-box" onclick="openPDF('{{ course.id }}');">
         <img class="course-card" src="{{ course.course_image.url }}" alt="{{ course.course_name }}">
     </div>
     {% endfor %}
 </div>
 
-<div id="pdfContainer" style="display:none;">
-    <iframe id="pdfViewer" class="pdf-viewer" src="" type="application/pdf"></iframe>
-</div>
-
 <script>
-    function showPDF(courseId) {
-        var pdfContainer = document.getElementById('pdfContainer');
-        var pdfViewer = document.getElementById('pdfViewer');
+    function openPDF(courseId) {
         var url = '/view_pdf/' + courseId + '/';
-
-        // Set the src of the iframe to the PDF URL
-        pdfViewer.src = url;
-        pdfContainer.style.display = 'block';
+        window.open(url, '_blank');
     }
 </script>
 
