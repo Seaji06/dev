@@ -48,10 +48,44 @@
                 <div class="student-item">
                     <img class="student-image" src="{{ student.userprofile.display_photo.url }}" />
                     <div class="student-name">{{ student.first_name }} {{ student.last_name }}</div>
+                    {% if user == classroom.instructor %}
+                    <div class="student-actions">
+                        <button class="unenroll-btn" onclick="confirmUnenroll('{{ student.id }}', '{{ student.first_name|escapejs }} {{ student.last_name|escapejs }}')">
+                            <i class="fas fa-user-minus"></i> Unenroll
+                        </button>
+                    </div>
+                    {% endif %}
                 </div>
                 {% endfor %}
             </div>
         </div>
     </div>
 </div>
+
+{% if user == classroom.instructor %}
+<script>
+function confirmUnenroll(studentId, studentName) {
+    if (confirm(`Are you sure you want to unenroll ${studentName} from this classroom?`)) {
+        fetch(`/unenroll_student/${studentId}/{{ classroom.id }}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error unenrolling student: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Error unenrolling student');
+        });
+    }
+}
+</script>
+{% endif %}
 {% endblock %}

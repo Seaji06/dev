@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.http import BadHeaderError, FileResponse
+from django.http import BadHeaderError, FileResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
@@ -20,6 +20,7 @@ import pytz
 from django.utils.timezone import activate
 import string
 from .forms import ClassroomForm
+from django.views.decorators.http import require_POST
 
 #@login_required(login_url='login')
 def home(request):
@@ -905,3 +906,28 @@ def four_pics_game(request, puzzle_id=None):
     }
     
     return render(request, 'exercises/4pics.html', context)
+
+@login_required
+@require_POST
+def unenroll_student(request, student_id, classroom_id):
+    try:
+        classroom = get_object_or_404(Classroom, id=classroom_id)
+        
+        # Check if the current user is the instructor
+        if request.user != classroom.instructor:
+            return JsonResponse({'success': False, 'error': 'Unauthorized'}, status=403)
+        
+        # Get the student and remove them from the classroom
+        student = get_object_or_404(User, id=student_id)
+        classroom.students.remove(student)
+        
+        # Create activity log
+        UserActivity.objects.create(
+            user=request.user,
+            activity_type='student_unenrolled',
+            description=f'Unenrolled student {student.first_name} {student.last_name} from {classroom.name}'
+        )
+        
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})

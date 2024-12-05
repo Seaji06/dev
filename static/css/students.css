@@ -406,7 +406,8 @@ a:hover {
 .student-item {
     display: flex;
     align-items: center;
-    height: 59px; /* Keeping the original height */
+    justify-content: space-between;
+    padding: 10px;
 }
 
 .student-name {
@@ -421,6 +422,31 @@ a:hover {
     width: 59px;
     height: 59px;
     border-radius: 50%;
+}
+
+.student-actions {
+    margin-left: auto;
+}
+
+.unenroll-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.3s;
+}
+
+.unenroll-btn:hover {
+    background-color: #c82333;
+}
+
+.unenroll-btn i {
+    font-size: 14px;
 }
 
 /* Media Queries for Responsiveness */

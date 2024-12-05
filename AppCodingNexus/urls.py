@@ -43,6 +43,7 @@ urlpatterns = [
     path('students/<int:classroom_id>/', views.students, name='students'),
     path('4pics/', views.four_pics_game, name='four_pics_game'),
     path('4pics/<int:puzzle_id>/', views.four_pics_game, name='four_pics_game'),
+    path('unenroll_student/<int:student_id>/<int:classroom_id>/', views.unenroll_student, name='unenroll_student'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
