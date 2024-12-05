@@ -818,6 +818,8 @@ def view_pdf(request, course_id):
             response = HttpResponse(pdf.read(), content_type='application/pdf')
             # Set headers to force browser display
             response['Content-Disposition'] = f'inline; filename="{course.pdf_file.name}"'
+            # Allow iframe embedding
+            response['X-Frame-Options'] = 'SAMEORIGIN'
             return response
     except Exception as e:
         raise Http404(f"Error opening PDF file: {str(e)}")
