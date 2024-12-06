@@ -21,6 +21,8 @@ from django.utils.timezone import activate
 import string
 from .forms import ClassroomForm
 from django.views.decorators.http import require_POST
+from django.urls import reverse
+from django.contrib.sites.shortcuts import get_current_site
 
 #@login_required(login_url='login')
 def home(request):
@@ -855,8 +857,15 @@ def join_classroom(request):
             messages.error(request, 'Invalid classroom code.')
     return render(request, 'join_classroom.html')
 
+@login_required(login_url='login')
 def lectures(request, classroom_id):
     classroom = get_object_or_404(Classroom, id=classroom_id)
+    
+    # Check if user is the instructor or an enrolled student
+    if request.user != classroom.instructor and not classroom.students.filter(id=request.user.id).exists():
+        messages.error(request, "You are not enrolled in this classroom.")
+        return redirect('classroom')
+        
     return render(request, 'lectures.html', {'classroom': classroom})
 
 def activities(request, classroom_id):
@@ -920,7 +929,7 @@ def four_pics_game(request, puzzle_id=None):
     
     return render(request, 'exercises/4pics.html', context)
 
-@login_required
+@login_required(login_url='login')
 @require_POST
 def unenroll_student(request, student_id, classroom_id):
     try:
@@ -944,3 +953,41 @@ def unenroll_student(request, student_id, classroom_id):
         return JsonResponse({'success': True})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required(login_url='login')
+def generate_invite_link(request, classroom_id):
+    classroom = get_object_or_404(Classroom, id=classroom_id)
+    
+    # Check if user is the instructor
+    if request.user != classroom.instructor:
+        messages.error(request, "Only the instructor can generate invite links.")
+        return redirect('classroom')
+    
+    # Generate invite token if not exists
+    if not classroom.invite_token:
+        classroom.generate_invite_token()
+    
+    # Generate full invite URL
+    current_site = get_current_site(request)
+    invite_url = f"http://{current_site.domain}{reverse('join_classroom_invite', args=[classroom.invite_token])}"
+    
+    return JsonResponse({'invite_url': invite_url})
+
+@login_required(login_url='login')
+def join_classroom_invite(request, token):
+    try:
+        classroom = get_object_or_404(Classroom, invite_token=token)
+        
+        # Check if user is already enrolled
+        if classroom.students.filter(id=request.user.id).exists():
+            messages.info(request, "You are already enrolled in this classroom.")
+            return redirect('classroom')
+        
+        # Add student to classroom
+        classroom.students.add(request.user)
+        messages.success(request, f'Successfully joined classroom: {classroom.name}')
+        return redirect('classroom')
+        
+    except Classroom.DoesNotExist:
+        messages.error(request, "Invalid invite link.")
+        return redirect('classroom')

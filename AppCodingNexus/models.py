@@ -88,9 +88,17 @@ class Classroom(models.Model):
     students = models.ManyToManyField(User, related_name='enrolled_classes', blank=True)
     course = models.ForeignKey('Courses', on_delete=models.CASCADE)
     description = models.TextField(blank=True)
+    invite_token = models.CharField(max_length=32, unique=True, null=True, blank=True)
 
     def __str__(self):
         return self.name
+
+    def generate_invite_token(self):
+        """Generate a unique invite token"""
+        import uuid
+        self.invite_token = uuid.uuid4().hex
+        self.save()
+        return self.invite_token
 
 class FourPicsOneWordPuzzle(models.Model):
     image1 = models.ImageField(upload_to='4pics/')

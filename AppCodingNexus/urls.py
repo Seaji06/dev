@@ -44,6 +44,8 @@ urlpatterns = [
     path('4pics/', views.four_pics_game, name='four_pics_game'),
     path('4pics/<int:puzzle_id>/', views.four_pics_game, name='four_pics_game'),
     path('unenroll_student/<int:student_id>/<int:classroom_id>/', views.unenroll_student, name='unenroll_student'),
+    path('classroom/<int:classroom_id>/invite/', views.generate_invite_link, name='generate_invite_link'),
+    path('classroom/join/<str:token>/', views.join_classroom_invite, name='join_classroom_invite'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
